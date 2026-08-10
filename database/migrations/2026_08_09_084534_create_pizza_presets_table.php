@@ -6,20 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('pizzas', function (Blueprint $table) {
+        Schema::create('pizza_presets', function (Blueprint $table) {
             $table->id();
-            $table->enum('size', ['sm', 'md', 'lg']);
-            $table->enum('type', ['preset', 'custom']);
-            $table->foreignId('preset_id')->nullable()->constrained('pizza_presets');
+            $table->string('name');
             $table->json('topping_codes')->default('[]');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('pizzas');
+        Schema::dropIfExists('pizza_presets');
     }
 };

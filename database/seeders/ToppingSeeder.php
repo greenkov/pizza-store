@@ -2,16 +2,20 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Topping;
 use Illuminate\Database\Seeder;
 
 class ToppingSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * @throws \Exception
      */
     public function run(): void
     {
-        //
+        $codes = Topping::getAvailableToppingCodes();
+
+        foreach ($codes as $code) {
+            Topping::factory()->code($code)->create();
+        }
     }
 }
