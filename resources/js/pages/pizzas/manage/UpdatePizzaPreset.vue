@@ -1,6 +1,6 @@
 <script setup>
-import { Form, Head, Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { Form, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { computed, reactive, ref } from 'vue';
 import PizzaPresetController from '@/actions/App/Http/Controllers/PizzaPresetController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
@@ -11,17 +11,11 @@ import CaloriesCalculator from '@/pages/pizzas/components/CaloriesCalculator.vue
 import SelectedToppings from '@/pages/pizzas/components/SelectedToppings.vue';
 import Topping from '@/pages/pizzas/components/Topping.vue';
 
-const selectedToppingsList = ref([]);
-
-const selectedSize = ref('md');
-
-const sizes = [
-    { value: 'sm', label: 'Small' },
-    { value: 'md', label: 'Medium' },
-    { value: 'lg', label: 'Large' },
-];
-
-defineProps({
+const props = defineProps({
+    pizzaPreset: {
+        type: Object,
+        required: true,
+    },
     toppings: {
         type: Array,
         required: false,
@@ -33,20 +27,32 @@ defineProps({
     },
 });
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            {
-                title: 'Pizza Presets',
-                href: PizzaPresetController.adminIndex(),
-            },
-            {
-                title: 'New Preset',
-                href: PizzaPresetController.create(),
-            },
-        ],
-    },
+setLayoutProps({
+    breadcrumbs: [
+        {
+            title: 'Pizza Presets',
+            href: PizzaPresetController.adminIndex(),
+        },
+        {
+            title: 'Edit Preset',
+            href: PizzaPresetController.edit(props.pizzaPreset.id),
+        },
+    ],
 });
+
+const selectedSize = ref('md');
+
+const sizes = [
+    { value: 'sm', label: 'Small' },
+    { value: 'md', label: 'Medium' },
+    { value: 'lg', label: 'Large' },
+];
+
+const selectedToppingsList = ref(
+    props.pizzaPreset.topping_codes
+        .map((code) => props.toppings.find((topping) => topping.code === code))
+        .filter(Boolean),
+);
 
 const addToppingHandler = (topping) => {
     selectedToppingsList.value.push(topping);
@@ -69,20 +75,22 @@ const isToppingAvailable = (toppingCode) => {
 const toppingCodes = computed(() => {
     return selectedToppingsList.value.map((item) => item.code);
 });
+
+const pizzaPresetData = reactive(Object.assign({}, props.pizzaPreset));
 </script>
 
 <template>
-    <Head title="New Pizza Preset" />
+    <Head title="Edit Pizza Preset" />
 
     <div class="flex flex-col space-y-6 p-4">
         <Heading
             variant="small"
-            title="New Pizza Preset"
+            title="Edit Pizza Preset"
             description="Name the pizza and pick the toppings it ships with"
         />
 
         <Form
-            v-bind="PizzaPresetController.store.form()"
+            v-bind="PizzaPresetController.update.form(pizzaPreset.id)"
             class="space-y-6"
             v-slot="{ errors, processing }"
         >
@@ -101,7 +109,7 @@ const toppingCodes = computed(() => {
                     name="name"
                     class="mt-1 block w-full"
                     required
-                    placeholder="Margherita"
+                    v-model="pizzaPresetData.name"
                 />
                 <InputError class="mt-2" :message="errors.name" />
             </div>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PizzaPresets\CreatePizzaPreset;
+use App\Http\Requests\PizzaPresets\UpdatePizzaPreset;
 use App\Http\Resources\PizzaPresetResource;
 use App\Models\PizzaPreset;
 use App\Models\Topping;
@@ -22,7 +24,7 @@ class PizzaPresetController extends Controller
 
     public function adminIndex(Request $request)
     {
-        $items = PizzaPreset::all();
+        $items = PizzaPreset::query()->orderBy('created_at', 'desc')->get();
 
         return inertia('pizzas/manage/ListPizzaPreset', ['presets' => $items->toResourceCollection(PizzaPresetResource::class)]);
     }
@@ -34,13 +36,18 @@ class PizzaPresetController extends Controller
     {
         return Inertia::render('pizzas/manage/CreatePizzaPreset', [
             'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal']),
+            'calories' => [
+                'md_base_cal' => config('calories.md_base_cal'),
+                'sm_coefficient' => config('calories.sm_coefficient'),
+                'lg_coefficient' => config('calories.lg_coefficient'),
+            ],
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreatePizzaPreset $request)
     {
         PizzaPreset::create($request->validated());
 
@@ -63,13 +70,21 @@ class PizzaPresetController extends Controller
      */
     public function edit(PizzaPreset $pizzaPreset)
     {
-        //
+        return Inertia::render('pizzas/manage/UpdatePizzaPreset', [
+            'pizzaPreset' => $pizzaPreset->toArray(),
+            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal']),
+            'calories' => [
+                'md_base_cal' => config('calories.md_base_cal'),
+                'sm_coefficient' => config('calories.sm_coefficient'),
+                'lg_coefficient' => config('calories.lg_coefficient'),
+            ],
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PizzaPreset $pizzaPreset)
+    public function update(UpdatePizzaPreset $request, PizzaPreset $pizzaPreset)
     {
         $pizzaPreset->update($request->validated());
 
