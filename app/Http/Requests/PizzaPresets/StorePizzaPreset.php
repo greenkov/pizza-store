@@ -5,7 +5,7 @@ namespace App\Http\Requests\PizzaPresets;
 use App\Models\Topping;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreatePizzaPreset extends FormRequest
+class StorePizzaPreset extends FormRequest
 {
     /**
      * @return bool

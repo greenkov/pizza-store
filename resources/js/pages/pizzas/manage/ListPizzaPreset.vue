@@ -62,9 +62,18 @@ const user = computed(() => page.props.auth.user);
                     </p>
                 </div>
 
-                <code class="shrink-0 font-mono text-xs text-gray-500">
-                    {{ preset.topping_codes.join(',') }}
-                </code>
+                <Link
+                    :href="
+                        PizzaPresetController.create({
+                            query: {
+                                topping_codes: preset.topping_codes.join(','),
+                            },
+                        })
+                    "
+                    target="_blank"
+                >
+                    <Button variant="secondary" size="sm">Duplicate</Button>
+                </Link>
 
                 <div class="flex shrink-0 items-center gap-2">
                     <Link :href="PizzaPresetController.edit(preset.id)">

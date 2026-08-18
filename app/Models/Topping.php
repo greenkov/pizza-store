@@ -18,6 +18,7 @@ class Topping extends Model
         'name',
         'code',
         'md_cal',
+        'md_price',
     ];
 
     /**

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PizzaPresets\CreatePizzaPreset;
+use App\Http\Requests\PizzaPresets\CreatePizzaPresets;
+use App\Http\Requests\PizzaPresets\StorePizzaPreset;
 use App\Http\Requests\PizzaPresets\UpdatePizzaPreset;
 use App\Http\Resources\PizzaPresetResource;
 use App\Models\PizzaPreset;
 use App\Models\Topping;
+use App\Objects\CalculatorData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -32,22 +34,21 @@ class PizzaPresetController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(CreatePizzaPresets $request)
     {
+        $toppingCodes = explode(',', $request->validated('topping_codes'));
+
         return Inertia::render('pizzas/manage/CreatePizzaPreset', [
-            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal']),
-            'calories' => [
-                'md_base_cal' => config('calories.md_base_cal'),
-                'sm_coefficient' => config('calories.sm_coefficient'),
-                'lg_coefficient' => config('calories.lg_coefficient'),
-            ],
+            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal', 'md_price']),
+            'initialToppingCodes' => $toppingCodes,
+            'calcData' => CalculatorData::getData(),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreatePizzaPreset $request)
+    public function store(StorePizzaPreset $request)
     {
         PizzaPreset::create($request->validated());
 
@@ -72,12 +73,8 @@ class PizzaPresetController extends Controller
     {
         return Inertia::render('pizzas/manage/UpdatePizzaPreset', [
             'pizzaPreset' => $pizzaPreset->toArray(),
-            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal']),
-            'calories' => [
-                'md_base_cal' => config('calories.md_base_cal'),
-                'sm_coefficient' => config('calories.sm_coefficient'),
-                'lg_coefficient' => config('calories.lg_coefficient'),
-            ],
+            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal', 'md_price']),
+            'calcData' => CalculatorData::getData(),
         ]);
     }
 

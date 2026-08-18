@@ -33,7 +33,7 @@ class ToppingFactory extends Factory
     }
 
     /**
-     * @return array{code: string, name: string, md_cal: int}
+     * @return array{code: string, name: string, md_cal: int, md_price: float}
      *
      * @throws \Exception
      */
@@ -42,7 +42,8 @@ class ToppingFactory extends Factory
         return [
             'code' => $code,
             'name' => Topping::getNameByCode($code),
-            'md_cal' => config("calories.toppings.$code"),
+            'md_cal' => config("calories.toppings.$code.cal"),
+            'md_price' => config("calories.toppings.$code.price"),
         ];
     }
 }

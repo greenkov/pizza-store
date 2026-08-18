@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Pizza;
+use App\Models\OrderedPizza;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Pizza>
+ * @extends Factory<OrderedPizza>
  */
-class PizzaFactory extends Factory
+class OrderedPizzaFactory extends Factory
 {
     /**
      * Define the model's default state.

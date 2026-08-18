@@ -8,26 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CaloriesCalculator from '@/pages/pizzas/components/CaloriesCalculator.vue';
+import Card from '@/pages/pizzas/components/Card.vue';
+import PriceCalculator from '@/pages/pizzas/components/PriceCalculator.vue';
 import SelectedToppings from '@/pages/pizzas/components/SelectedToppings.vue';
 import Topping from '@/pages/pizzas/components/Topping.vue';
 
-const selectedToppingsList = ref([]);
-
-const selectedSize = ref('md');
-
-const sizes = [
-    { value: 'sm', label: 'Small' },
-    { value: 'md', label: 'Medium' },
-    { value: 'lg', label: 'Large' },
-];
-
-defineProps({
+const props = defineProps({
     toppings: {
         type: Array,
         required: false,
         default: () => [],
     },
-    calories: {
+    initialToppingCodes: {
+        type: Array,
+        required: false,
+        default: () => [],
+    },
+    calcData: {
         type: Object,
         required: true,
     },
@@ -48,6 +45,19 @@ defineOptions({
     },
 });
 
+const selectedToppingsList = ref(
+    props.initialToppingCodes
+        .map((code) => props.toppings.find((topping) => topping.code === code))
+        .filter(Boolean),
+);
+
+const selectedSize = ref('md');
+
+const sizes = [
+    { value: 'sm', label: 'Small' },
+    { value: 'md', label: 'Medium' },
+    { value: 'lg', label: 'Large' },
+];
 const addToppingHandler = (topping) => {
     selectedToppingsList.value.push(topping);
 };
@@ -106,31 +116,41 @@ const toppingCodes = computed(() => {
                 <InputError class="mt-2" :message="errors.name" />
             </div>
 
-            <div class="grid gap-2">
-                <CaloriesCalculator
-                    :toppings="selectedToppingsList"
-                    :base-size="selectedSize"
-                    :calories="calories"
-                />
-            </div>
-
-            <div class="grid gap-2">
-                <Label>Size</Label>
-                <Label
-                    v-for="option in sizes"
-                    :key="option.value"
-                    class="flex items-center space-x-3 font-normal"
-                >
-                    <input
-                        v-model="selectedSize"
-                        type="radio"
-                        name="size"
-                        :value="option.value"
-                        class="size-4"
+            <Card>
+                <template #header>
+                    <h3><b>Calories</b> and <b>Price</b> Approximation</h3>
+                    <hr class="my-4" />
+                </template>
+                <div class="mb-4 grid gap-2">
+                    <Label>Size</Label>
+                    <Label
+                        v-for="option in sizes"
+                        :key="option.value"
+                        class="flex items-center space-x-3 font-normal"
+                    >
+                        <input
+                            v-model="selectedSize"
+                            type="radio"
+                            name="size"
+                            :value="option.value"
+                            class="size-4"
+                        />
+                        <span>{{ option.label }}</span>
+                    </Label>
+                </div>
+                <div class="grid gap-2 gap-y-4">
+                    <CaloriesCalculator
+                        :toppings="selectedToppingsList"
+                        :base-size="selectedSize"
+                        :calc-data="calcData"
                     />
-                    <span>{{ option.label }}</span>
-                </Label>
-            </div>
+                    <PriceCalculator
+                        :toppings="selectedToppingsList"
+                        :base-size="selectedSize"
+                        :calc-data="calcData"
+                    />
+                </div>
+            </Card>
 
             <div class="grid gap-2">
                 <Label>Toppings*</Label>

@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CaloriesCalculator from '@/pages/pizzas/components/CaloriesCalculator.vue';
+import Card from '@/pages/pizzas/components/Card.vue';
+import PriceCalculator from '@/pages/pizzas/components/PriceCalculator.vue';
 import SelectedToppings from '@/pages/pizzas/components/SelectedToppings.vue';
 import Topping from '@/pages/pizzas/components/Topping.vue';
 
@@ -21,7 +23,7 @@ const props = defineProps({
         required: false,
         default: () => [],
     },
-    calories: {
+    calcData: {
         type: Object,
         required: true,
     },
@@ -114,31 +116,41 @@ const pizzaPresetData = reactive(Object.assign({}, props.pizzaPreset));
                 <InputError class="mt-2" :message="errors.name" />
             </div>
 
-            <div class="grid gap-2">
-                <CaloriesCalculator
-                    :toppings="selectedToppingsList"
-                    :base-size="selectedSize"
-                    :calories="calories"
-                />
-            </div>
-
-            <div class="grid gap-2">
-                <Label>Size</Label>
-                <Label
-                    v-for="option in sizes"
-                    :key="option.value"
-                    class="flex items-center space-x-3 font-normal"
-                >
-                    <input
-                        v-model="selectedSize"
-                        type="radio"
-                        name="size"
-                        :value="option.value"
-                        class="size-4"
+            <Card>
+                <template #header>
+                    <h3><b>Calories</b> and <b>Price</b> Approximation</h3>
+                    <hr class="my-4" />
+                </template>
+                <div class="mb-4 grid gap-2">
+                    <Label>Size</Label>
+                    <Label
+                        v-for="option in sizes"
+                        :key="option.value"
+                        class="flex items-center space-x-3 font-normal"
+                    >
+                        <input
+                            v-model="selectedSize"
+                            type="radio"
+                            name="size"
+                            :value="option.value"
+                            class="size-4"
+                        />
+                        <span>{{ option.label }}</span>
+                    </Label>
+                </div>
+                <div class="grid gap-2 gap-y-4">
+                    <CaloriesCalculator
+                        :toppings="selectedToppingsList"
+                        :base-size="selectedSize"
+                        :calc-data="calcData"
                     />
-                    <span>{{ option.label }}</span>
-                </Label>
-            </div>
+                    <PriceCalculator
+                        :toppings="selectedToppingsList"
+                        :base-size="selectedSize"
+                        :calc-data="calcData"
+                    />
+                </div>
+            </Card>
 
             <div class="grid gap-2">
                 <Label>Toppings*</Label>
