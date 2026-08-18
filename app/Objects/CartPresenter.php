@@ -9,11 +9,6 @@ use Illuminate\Support\Collection;
 
 class CartPresenter
 {
-    /**
-     * @param array $cartData
-     *
-     * @return array
-     */
     public static function present(array $cartData): array
     {
         if ($cartData === []) {
@@ -27,6 +22,7 @@ class CartPresenter
         $items = [];
 
         foreach ($cartData as $item) {
+            $quantity = $item['quantity'] ?? 1;
             $items[] = [
                 'id' => $item['id'],
                 'name' => $item['preset_id'] !== null
@@ -37,7 +33,8 @@ class CartPresenter
                     static fn (string $code): string => $toppings[$code]->name ?? $code,
                     $item['topping_codes'],
                 ),
-                'price' => self::priceFor($item['topping_codes'], $item['size'], $toppings),
+                'price' => round(self::priceFor($item['topping_codes'], $item['size'], $toppings) * $quantity, 2),
+                'quantity' => $quantity,
             ];
         }
 
@@ -47,13 +44,6 @@ class CartPresenter
         ];
     }
 
-    /**
-     * @param array $toppingCodes
-     * @param string $size
-     * @param Collection $toppings
-     *
-     * @return float
-     */
     private static function priceFor(array $toppingCodes, string $size, Collection $toppings): float
     {
         $coefficient = $size === OrderedPizza::SIZE_MEDIUM

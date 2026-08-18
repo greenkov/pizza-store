@@ -30,7 +30,30 @@ class CartDTO
 
     public function addItem(CartItemDTO $cartItemDTO): void
     {
+        $foundItem = $this->findEqualItem($cartItemDTO);
+
+        if ($foundItem !== null) {
+            $foundItem->quantity++;
+
+            return;
+        }
+
         $this->items[] = $cartItemDTO;
+    }
+
+    /**
+     * Set an item's quantity. Unknown ids are ignored — the cart is session
+     * state, so a stale tab can easily ask for an item that is already gone.
+     */
+    public function changeQuantity(string $itemId, int $quantity): void
+    {
+        $item = array_find($this->items, static function (CartItemDTO $cartItemDTO) use ($itemId): bool {
+            return $cartItemDTO->id === $itemId;
+        });
+
+        if ($item !== null) {
+            $item->quantity = $quantity;
+        }
     }
 
     public function removeItem(string $itemId): void
@@ -48,5 +71,12 @@ class CartDTO
         }
 
         return $result;
+    }
+
+    private function findEqualItem(CartItemDTO $cartItemDTO): ?CartItemDTO
+    {
+        return array_find($this->items, function ($item) use ($cartItemDTO) {
+            return $cartItemDTO->equalTo($item);
+        });
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Cart\AddToCartRequest;
+use App\Http\Requests\Cart\UpdateCartItemRequest;
 use App\Objects\DTO\CartDTO;
 use App\Objects\DTO\CartItemDTO;
 use Illuminate\Http\RedirectResponse;
@@ -11,11 +12,6 @@ use Inertia\Inertia;
 
 class CartController extends Controller
 {
-    /**
-     * @param AddToCartRequest $request
-     *
-     * @return RedirectResponse
-     */
     public function store(AddToCartRequest $request): RedirectResponse
     {
         $itemData = $request->validated();
@@ -32,9 +28,18 @@ class CartController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param string $id
-     *
+     * Set the quantity of a single cart item.
+     */
+    public function update(UpdateCartItemRequest $request, string $id): RedirectResponse
+    {
+        $cart = CartDTO::buildFromArray($request->session()->get('cart', []));
+        $cart->changeQuantity($id, (int) $request->validated('quantity'));
+        $request->session()->put('cart', $cart->toArray());
+
+        return back();
+    }
+
+    /**
      * @return RedirectResponse
      */
     public function destroy(Request $request, string $id)

@@ -1,7 +1,8 @@
 <script setup>
-import { Form, usePage } from '@inertiajs/vue3';
-import { ShoppingCart } from '@lucide/vue';
-import { computed } from 'vue';
+import { Form, router, usePage } from '@inertiajs/vue3';
+import { Minus, Plus, ShoppingCart } from '@lucide/vue';
+import { computed, ref } from 'vue';
+import CartController from '@/actions/App/Http/Controllers/CartController.ts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +15,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import CartController from '@/actions/App/Http/Controllers/CartController.ts';
 
 const page = usePage();
 
@@ -25,6 +25,42 @@ const sizeLabels = {
     md: 'Medium',
     lg: 'Large',
 };
+
+const MIN_QUANTITY = 1;
+const MAX_QUANTITY = 99;
+
+// Id of the item whose quantity request is still in flight, so only that row
+// gets disabled rather than the whole cart.
+const pendingId = ref(null);
+
+const setQuantity = (item, quantity) => {
+    if (
+        !Number.isInteger(quantity) ||
+        quantity < MIN_QUANTITY ||
+        quantity > MAX_QUANTITY ||
+        quantity === item.quantity
+    ) {
+        // Re-render the row so a rejected keyboard edit snaps back.
+        pendingId.value = null;
+
+        return;
+    }
+
+    pendingId.value = item.id;
+
+    router.patch(
+        CartController.update.url(item.id),
+        { quantity },
+        {
+            preserveScroll: true,
+            onFinish: () => (pendingId.value = null),
+        },
+    );
+};
+
+const increaseQuantity = (item) => setQuantity(item, item.quantity + 1);
+
+const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
 </script>
 
 <template>
@@ -75,7 +111,51 @@ const sizeLabels = {
                         </p>
                     </div>
 
-                    <span class="shrink-0 font-medium"
+                    <div class="flex shrink-0 items-center gap-1">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            type="button"
+                            aria-label="Decrease quantity"
+                            :disabled="
+                                pendingId === item.id ||
+                                item.quantity <= MIN_QUANTITY
+                            "
+                            @click="decreaseQuantity(item)"
+                        >
+                            <Minus />
+                        </Button>
+
+                        <input
+                            :key="item.quantity"
+                            type="number"
+                            class="h-9 w-14 [appearance:textfield] rounded-md border bg-transparent text-center text-sm [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            :min="MIN_QUANTITY"
+                            :max="MAX_QUANTITY"
+                            :value="item.quantity"
+                            :disabled="pendingId === item.id"
+                            :aria-label="`Quantity for ${item.name}`"
+                            @change="
+                                setQuantity(item, Number($event.target.value))
+                            "
+                        />
+
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            type="button"
+                            aria-label="Increase quantity"
+                            :disabled="
+                                pendingId === item.id ||
+                                item.quantity >= MAX_QUANTITY
+                            "
+                            @click="increaseQuantity(item)"
+                        >
+                            <Plus />
+                        </Button>
+                    </div>
+
+                    <span class="w-16 shrink-0 text-right font-medium"
                         >${{ item.price.toFixed(2) }}</span
                     >
                     <Form
