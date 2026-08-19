@@ -7,8 +7,6 @@ use App\Http\Requests\PizzaPresets\StorePizzaPreset;
 use App\Http\Requests\PizzaPresets\UpdatePizzaPreset;
 use App\Http\Resources\PizzaPresetResource;
 use App\Models\PizzaPreset;
-use App\Models\Topping;
-use App\Objects\CalculatorData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -39,9 +37,7 @@ class PizzaPresetController extends Controller
         $toppingCodes = explode(',', $request->validated('topping_codes'));
 
         return Inertia::render('pizzas/manage/CreatePizzaPreset', [
-            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal', 'md_price']),
             'initialToppingCodes' => $toppingCodes,
-            'calcData' => CalculatorData::getData(),
         ]);
     }
 
@@ -73,8 +69,6 @@ class PizzaPresetController extends Controller
     {
         return Inertia::render('pizzas/manage/UpdatePizzaPreset', [
             'pizzaPreset' => $pizzaPreset->toArray(),
-            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal', 'md_price']),
-            'calcData' => CalculatorData::getData(),
         ]);
     }
 

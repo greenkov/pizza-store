@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Objects\DTO;
+namespace App\Services\Cart\Objects;
 
 class CartDTO
 {
@@ -42,8 +42,8 @@ class CartDTO
     }
 
     /**
-     * Set an item's quantity. Unknown ids are ignored — the cart is session
-     * state, so a stale tab can easily ask for an item that is already gone.
+     * @param string $itemId
+     * @param int $quantity
      */
     public function changeQuantity(string $itemId, int $quantity): void
     {
@@ -53,6 +53,21 @@ class CartDTO
 
         if ($item !== null) {
             $item->quantity = $quantity;
+        }
+    }
+
+    /**
+     * @param string $itemId
+     * @param string $size
+     */
+    public function changeSize(string $itemId, string $size): void
+    {
+        $item = array_find($this->items, static function (CartItemDTO $cartItemDTO) use ($itemId): bool {
+            return $cartItemDTO->id === $itemId;
+        });
+
+        if ($item !== null) {
+            $item->size = $size;
         }
     }
 

@@ -13,6 +13,19 @@ class PizzaPreset extends Model
     /** @use HasFactory<PizzaPresetFactory> */
     use HasFactory, SoftDeletes;
 
+    public const SIZE_SMALL = 'sm';
+    public const SIZE_MEDIUM = 'md';
+    public const SIZE_LARGE = 'lg';
+
+    /**
+     * @var array|string[]
+     */
+    public static array $availableSizes = [
+        self::SIZE_SMALL,
+        self::SIZE_MEDIUM,
+        self::SIZE_LARGE,
+    ];
+
     /**
      * @var string[]
      */

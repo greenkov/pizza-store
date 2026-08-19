@@ -1,5 +1,5 @@
 <script setup>
-import { Form, Head, Link, setLayoutProps } from '@inertiajs/vue3';
+import { Form, Head, Link, setLayoutProps, usePage } from '@inertiajs/vue3';
 import { computed, reactive, ref } from 'vue';
 import PizzaPresetController from '@/actions/App/Http/Controllers/PizzaPresetController';
 import Heading from '@/components/Heading.vue';
@@ -18,16 +18,11 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    toppings: {
-        type: Array,
-        required: false,
-        default: () => [],
-    },
-    calcData: {
-        type: Object,
-        required: true,
-    },
 });
+
+const page = usePage();
+const toppings = computed(() => page.props.toppings ?? []);
+const calcData = computed(() => page.props.calcData ?? {});
 
 setLayoutProps({
     breadcrumbs: [
@@ -52,7 +47,7 @@ const sizes = [
 
 const selectedToppingsList = ref(
     props.pizzaPreset.topping_codes
-        .map((code) => props.toppings.find((topping) => topping.code === code))
+        .map((code) => toppings.value.find((topping) => topping.code === code))
         .filter(Boolean),
 );
 

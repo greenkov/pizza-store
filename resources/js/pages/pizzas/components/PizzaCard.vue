@@ -1,15 +1,25 @@
 <script setup>
-import { Form, Link } from '@inertiajs/vue3';
+import { Form } from '@inertiajs/vue3';
+import { ShoppingCart } from '@lucide/vue';
+import { computed } from 'vue';
 import CartController from '@/actions/App/Http/Controllers/CartController.ts';
-import PizzaPresetController from '@/actions/App/Http/Controllers/PizzaPresetController.ts';
 import { Button } from '@/components/ui/button/index.ts';
 import Card from '@/pages/pizzas/components/Card.vue';
 
-defineProps({
+const props = defineProps({
     item: {
         type: Object,
         required: true,
     },
+});
+
+const emit = defineEmits(['customize']);
+
+const customizationData = computed(() => {
+    return {
+        name: props.item.name + ' (custom)',
+        toppings: props.item.topping_codes,
+    };
 });
 </script>
 
@@ -32,36 +42,45 @@ defineProps({
                     {{ topping.name }}
                 </li>
             </ul>
+            <div class="grid gap-6 md:grid-cols-3">
+                <div class="md:col-span-2">
+                    <Button
+                        class="w-full"
+                        variant="ghost"
+                        size="sm"
+                        @click="emit('customize', customizationData)"
+                    >
+                        Customize
+                    </Button>
+                </div>
+                <div class="md:col-span-1">
+                    <Form
+                        v-bind="CartController.store.form()"
+                        :options="{ preserveScroll: true }"
+                        #default="{ processing }"
+                    >
+                        <input
+                            type="hidden"
+                            name="preset_id"
+                            :value="item.id"
+                        />
+                        <input type="hidden" name="size" value="md" />
 
-            <Link
-                :href="
-                    PizzaPresetController.create({
-                        query: {
-                            topping_codes: item.topping_codes.join(','),
-                        },
-                    })
-                "
-                target="_blank"
-            >
-                <Button variant="secondary" size="sm">Customize</Button>
-            </Link>
-            <Form
-                v-bind="CartController.store.form()"
-                :options="{ preserveScroll: true }"
-                #default="{ processing }"
-            >
-                <input type="hidden" name="preset_id" :value="item.id" />
-                <input type="hidden" name="size" value="md" />
-
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    type="submit"
-                    :disabled="processing"
-                >
-                    {{ processing ? 'Adding…' : 'Add' }}
-                </Button>
-            </Form>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            type="submit"
+                            :disabled="processing"
+                        >
+                            <template v-if="processing">
+                                …<ShoppingCart />
+                            </template>
+                            <template v-else> + <ShoppingCart /> </template>
+                        </Button>
+                    </Form>
+                </div>
+                <!-- 1/3 -->
+            </div>
         </div>
     </Card>
 </template>

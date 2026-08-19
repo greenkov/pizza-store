@@ -4,23 +4,48 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\UpdateCartItemRequest;
-use App\Objects\DTO\CartDTO;
-use App\Objects\DTO\CartItemDTO;
+use App\Services\Cart\CartService;
+use App\Services\Cart\Objects\CartDTO;
+use App\Services\Cart\Objects\CartItemDTO;
+use Arr;
+use Illuminate\Container\EntryNotFoundException;
+use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class CartController extends Controller
 {
+    /**
+     * @var CartService
+     */
+    public CartService $cartService;
+
+    /**
+     * @param CartService $cartService
+     */
+    public function __construct(CartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
+    /**
+     * @param AddToCartRequest $request
+     *
+     * @return RedirectResponse
+     *
+     * @throws CircularDependencyException
+     * @throws ContainerExceptionInterface
+     * @throws EntryNotFoundException
+     * @throws NotFoundExceptionInterface
+     */
     public function store(AddToCartRequest $request): RedirectResponse
     {
         $itemData = $request->validated();
-        $cartData = $request->session()->get('cart', []);
-
-        $cart = CartDTO::buildFromArray($cartData);
         $itemDto = CartItemDTO::buildFromRequestParams($itemData);
-        $cart->addItem($itemDto);
-        $request->session()->put('cart', $cart->toArray());
+        $this->cartService->addStore($itemDto);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Item added to cart.')]);
 
@@ -28,27 +53,37 @@ class CartController extends Controller
     }
 
     /**
-     * Set the quantity of a single cart item.
+     * @param UpdateCartItemRequest $request
+     * @param string $id
+     *
+     * @return RedirectResponse
+     *
+     * @throws EntryNotFoundException
+     * @throws CircularDependencyException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function update(UpdateCartItemRequest $request, string $id): RedirectResponse
     {
-        $cart = CartDTO::buildFromArray($request->session()->get('cart', []));
-        $cart->changeQuantity($id, (int) $request->validated('quantity'));
-        $request->session()->put('cart', $cart->toArray());
+        $this->cartService->updateItemParams($id, $request->validated());
 
         return back();
     }
 
     /**
+     * @param Request $request
+     * @param string $id
+     *
      * @return RedirectResponse
+     *
+     * @throws CircularDependencyException
+     * @throws ContainerExceptionInterface
+     * @throws EntryNotFoundException
+     * @throws NotFoundExceptionInterface
      */
     public function destroy(Request $request, string $id)
     {
-        $cartData = $request->session()->get('cart', []);
-
-        $cart = CartDTO::buildFromArray($cartData);
-        $cart->removeItem($id);
-        $request->session()->put('cart', $cart->toArray());
+        $this->cartService->removeItem($id);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Item removed from a cart.')]);
 

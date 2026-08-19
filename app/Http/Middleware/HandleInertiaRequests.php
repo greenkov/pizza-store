@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Topping;
+use App\Objects\CalculatorData;
 use App\Objects\CartPresenter;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -44,6 +46,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'cart' => fn (): array => CartPresenter::present($request->session()->get('cart', [])),
+            'toppings' => Topping::orderBy('name')->get(['code', 'name', 'md_cal', 'md_price']),
+            'calcData' => CalculatorData::getData(),
         ];
     }
 }

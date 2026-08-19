@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderPizzaRequest;
-use App\Objects\DTO\CartItemDTO;
+use App\Services\Cart\Objects\CartItemDTO;
 
 class OrderPizzaController extends Controller
 {

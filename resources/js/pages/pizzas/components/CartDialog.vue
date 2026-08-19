@@ -20,11 +20,11 @@ const page = usePage();
 
 const cart = computed(() => page.props.cart ?? { items: [], total: 0 });
 
-const sizeLabels = {
-    sm: 'Small',
-    md: 'Medium',
-    lg: 'Large',
-};
+const sizes = [
+    { value: 'sm', label: 'SM' },
+    { value: 'md', label: 'MD' },
+    { value: 'lg', label: 'LG' },
+];
 
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 99;
@@ -58,6 +58,27 @@ const setQuantity = (item, quantity) => {
     );
 };
 
+const setSize = (item, size) => {
+    // console.log(item.name, size);
+    // return;
+    if (Object.hasOwn(sizes, size)) {
+        pendingId.value = null;
+
+        return;
+    }
+
+    pendingId.value = item.id;
+
+    router.patch(
+        CartController.update.url(item.id),
+        { size },
+        {
+            preserveScroll: true,
+            onFinish: () => (pendingId.value = null),
+        },
+    );
+};
+
 const increaseQuantity = (item) => setQuantity(item, item.quantity + 1);
 
 const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
@@ -75,7 +96,7 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
             </Button>
         </DialogTrigger>
 
-        <DialogContent>
+        <DialogContent class="sm:max-w-3xl">
             <DialogHeader class="space-y-3">
                 <DialogTitle>Your cart</DialogTitle>
                 <DialogDescription>
@@ -91,18 +112,18 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
                 Your cart is empty.
             </p>
 
-            <ul v-else class="max-h-80 space-y-3 overflow-y-auto">
+            <ul
+                v-else
+                class="grid max-h-80 grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-x-4 gap-y-3 overflow-y-auto"
+            >
                 <li
                     v-for="item in cart.items"
                     :key="item.id"
-                    class="flex items-start justify-between gap-4 border-b pb-3 last:border-b-0"
+                    class="col-span-4 grid grid-cols-subgrid items-center border-b pb-3 last:border-b-0"
                 >
                     <div class="min-w-0">
                         <p class="font-medium">
                             {{ item.name }}
-                            <span class="text-sm font-normal text-gray-500">
-                                ({{ sizeLabels[item.size] ?? item.size }})
-                            </span>
                         </p>
                         <p
                             class="truncate text-sm text-gray-600 dark:text-gray-400"
@@ -111,51 +132,78 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
                         </p>
                     </div>
 
-                    <div class="flex shrink-0 items-center gap-1">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            type="button"
-                            aria-label="Decrease quantity"
-                            :disabled="
-                                pendingId === item.id ||
-                                item.quantity <= MIN_QUANTITY
-                            "
-                            @click="decreaseQuantity(item)"
-                        >
-                            <Minus />
-                        </Button>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="flex items-center gap-1">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                type="button"
+                                aria-label="Decrease quantity"
+                                :disabled="
+                                    pendingId === item.id ||
+                                    item.quantity <= MIN_QUANTITY
+                                "
+                                @click="decreaseQuantity(item)"
+                            >
+                                <Minus />
+                            </Button>
 
-                        <input
-                            :key="item.quantity"
-                            type="number"
-                            class="h-9 w-14 [appearance:textfield] rounded-md border bg-transparent text-center text-sm [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                            :min="MIN_QUANTITY"
-                            :max="MAX_QUANTITY"
-                            :value="item.quantity"
-                            :disabled="pendingId === item.id"
-                            :aria-label="`Quantity for ${item.name}`"
-                            @change="
-                                setQuantity(item, Number($event.target.value))
-                            "
-                        />
+                            <input
+                                :key="item.quantity"
+                                type="number"
+                                class="h-9 w-14 [appearance:textfield] rounded-md border bg-transparent text-center text-sm [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                :min="MIN_QUANTITY"
+                                :max="MAX_QUANTITY"
+                                :value="item.quantity"
+                                :disabled="pendingId === item.id"
+                                :aria-label="`Quantity for ${item.name}`"
+                                @change="
+                                    setQuantity(
+                                        item,
+                                        Number($event.target.value),
+                                    )
+                                "
+                            />
 
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            type="button"
-                            aria-label="Increase quantity"
-                            :disabled="
-                                pendingId === item.id ||
-                                item.quantity >= MAX_QUANTITY
-                            "
-                            @click="increaseQuantity(item)"
-                        >
-                            <Plus />
-                        </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                type="button"
+                                aria-label="Increase quantity"
+                                :disabled="
+                                    pendingId === item.id ||
+                                    item.quantity >= MAX_QUANTITY
+                                "
+                                @click="increaseQuantity(item)"
+                            >
+                                <Plus />
+                            </Button>
+                        </div>
+
+                        <div class="inline-flex gap-1 rounded-md border p-1">
+                            <label
+                                v-for="option in sizes"
+                                :key="option.value"
+                                class="cursor-pointer"
+                            >
+                                <input
+                                    type="radio"
+                                    :name="`size-${item.id}`"
+                                    :value="option.value"
+                                    :checked="item.size === option.value"
+                                    class="peer sr-only"
+                                    @change="setSize(item, option.value)"
+                                />
+                                <span
+                                    class="block rounded px-4 py-1.5 text-sm font-medium transition-colors peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-ring hover:bg-accent"
+                                >
+                                    {{ option.label }}
+                                </span>
+                            </label>
+                        </div>
                     </div>
 
-                    <span class="w-16 shrink-0 text-right font-medium"
+                    <span class="text-right font-medium"
                         >${{ item.price.toFixed(2) }}</span
                     >
                     <Form

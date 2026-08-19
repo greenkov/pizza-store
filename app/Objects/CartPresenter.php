@@ -2,9 +2,9 @@
 
 namespace App\Objects;
 
-use App\Models\OrderedPizza;
 use App\Models\PizzaPreset;
 use App\Models\Topping;
+use Arr;
 use Illuminate\Support\Collection;
 
 class CartPresenter
@@ -27,7 +27,7 @@ class CartPresenter
                 'id' => $item['id'],
                 'name' => $item['preset_id'] !== null
                     ? ($presetNames[$item['preset_id']] ?? __('Unavailable pizza'))
-                    : __('Custom pizza'),
+                    : Arr::get($item, 'name', __('Custom pizza')),
                 'size' => $item['size'],
                 'toppings' => array_map(
                     static fn (string $code): string => $toppings[$code]->name ?? $code,
@@ -46,7 +46,7 @@ class CartPresenter
 
     private static function priceFor(array $toppingCodes, string $size, Collection $toppings): float
     {
-        $coefficient = $size === OrderedPizza::SIZE_MEDIUM
+        $coefficient = $size === PizzaPreset::SIZE_MEDIUM
             ? 1.0
             : (float) config("calories.{$size}_coefficient", 1);
 

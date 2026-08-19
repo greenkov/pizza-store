@@ -1,5 +1,5 @@
 <script setup>
-import { Form, Head, Link } from '@inertiajs/vue3';
+import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import PizzaPresetController from '@/actions/App/Http/Controllers/PizzaPresetController';
 import Heading from '@/components/Heading.vue';
@@ -14,21 +14,16 @@ import SelectedToppings from '@/pages/pizzas/components/SelectedToppings.vue';
 import Topping from '@/pages/pizzas/components/Topping.vue';
 
 const props = defineProps({
-    toppings: {
-        type: Array,
-        required: false,
-        default: () => [],
-    },
     initialToppingCodes: {
         type: Array,
         required: false,
         default: () => [],
     },
-    calcData: {
-        type: Object,
-        required: true,
-    },
 });
+
+const page = usePage();
+const toppings = computed(() => page.props.toppings ?? []);
+const calcData = computed(() => page.props.calcData ?? {});
 
 defineOptions({
     layout: {
@@ -47,7 +42,7 @@ defineOptions({
 
 const selectedToppingsList = ref(
     props.initialToppingCodes
-        .map((code) => props.toppings.find((topping) => topping.code === code))
+        .map((code) => toppings.value.find((topping) => topping.code === code))
         .filter(Boolean),
 );
 
