@@ -29,8 +29,6 @@ const sizes = [
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 99;
 
-// Id of the item whose quantity request is still in flight, so only that row
-// gets disabled rather than the whole cart.
 const pendingId = ref(null);
 
 const setQuantity = (item, quantity) => {
@@ -40,9 +38,6 @@ const setQuantity = (item, quantity) => {
         quantity > MAX_QUANTITY ||
         quantity === item.quantity
     ) {
-        // Re-render the row so a rejected keyboard edit snaps back.
-        pendingId.value = null;
-
         return;
     }
 
@@ -59,14 +54,6 @@ const setQuantity = (item, quantity) => {
 };
 
 const setSize = (item, size) => {
-    // console.log(item.name, size);
-    // return;
-    if (Object.hasOwn(sizes, size)) {
-        pendingId.value = null;
-
-        return;
-    }
-
     pendingId.value = item.id;
 
     router.patch(
@@ -191,6 +178,7 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
                                     :name="`size-${item.id}`"
                                     :value="option.value"
                                     :checked="item.size === option.value"
+                                    :disabled="pendingId === item.id"
                                     class="peer sr-only"
                                     @change="setSize(item, option.value)"
                                 />
