@@ -2,64 +2,61 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Order\StoreOrderRequest;
 use App\Models\Order;
-use Illuminate\Http\Request;
+use App\Objects\PaymentMethodPresenter;
+use App\Services\Cart\CartService;
+use App\Services\Order\Exceptions\InvalidOrderException;
+use App\Services\Order\OrderService;
+use App\Services\Payment\Exceptions\UnsupportedPaymentMethodException;
+use App\Services\Payment\Objects\PaymentMethodParams;
+use App\Services\Payment\PaymentService;
+use Illuminate\Container\EntryNotFoundException;
+use Illuminate\Contracts\Container\CircularDependencyException;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function create(): Response
     {
-        //
+        return inertia('pizzas/order/CreateOrder', [
+            'paymentMethods' => PaymentMethodPresenter::present(),
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @param  StoreOrderRequest  $request
+     * @return RedirectResponse
+     *
+     * @throws CircularDependencyException
+     * @throws ContainerExceptionInterface
+     * @throws EntryNotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws UnsupportedPaymentMethodException
+     * @throws InvalidOrderException
      */
-    public function create()
+    public function store(StoreOrderRequest $request): RedirectResponse
     {
-        //
-    }
+        $data = $request->validated();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $cartService = app(CartService::class);
+        $cart = $cartService->readCartFromSession();
+        $order = app(OrderService::class)->createPendingOrder($cart);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
-    {
-        //
-    }
+        $paymentService = app(PaymentService::class);
+        $paymentParams = PaymentMethodParams::buildFromRequestParams($data);
+        $paymentService->payOrder($order, $paymentParams);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
+        $order->update(['status' => Order::STATUS_PAID]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
-    {
-        //
-    }
+        $cartService->clearCart();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Payment successful.')]);
+
+        return back();
     }
 }

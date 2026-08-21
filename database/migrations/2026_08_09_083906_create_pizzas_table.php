@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->enum('size', ['sm', 'md', 'lg']);
             $table->enum('type', ['preset', 'custom']);
-            $table->foreignId('preset_id')->nullable()->constrained('pizza_presets');
+            $table->foreignId('preset_id')->nullable()->constrained('pizza_presets', 'id');
             $table->json('topping_codes')->default('[]');
             $table->timestamps();
         });

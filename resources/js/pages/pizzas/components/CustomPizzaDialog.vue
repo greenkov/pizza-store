@@ -50,6 +50,8 @@ watch(isOpen, (open) => {
     selectedSize.value = 'md';
 });
 
+const isNameSpecified = computed(() => !!props.name);
+
 const selectedSize = ref('md');
 
 const sizes = [
@@ -101,7 +103,7 @@ const toppingCodes = computed(() => {
                     :value="code"
                 />
 
-                <div class="grid max-w-md gap-2">
+                <div v-if="!isNameSpecified" class="grid max-w-md gap-2">
                     <Label for="name">Name*</Label>
                     <Input
                         id="name"
@@ -110,10 +112,16 @@ const toppingCodes = computed(() => {
                         required
                         placeholder="Margherita"
                         :defaultValue="name"
-                        :readonly="!!name"
+                        :disabled="!!name"
                     />
                     <InputError class="mt-2" :message="errors.name" />
                 </div>
+                <input
+                    v-else
+                    type="hidden"
+                    name="name"
+                    :value="name"
+                />
 
                 <Label>Size</Label>
                 <Label

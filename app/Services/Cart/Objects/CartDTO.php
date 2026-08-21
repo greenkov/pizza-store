@@ -28,6 +28,14 @@ class CartDTO
         return new self($resultItems);
     }
 
+    /**
+     * @return array|CartItemDTO[]
+     */
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
     public function addItem(CartItemDTO $cartItemDTO): void
     {
         $foundItem = $this->findEqualItem($cartItemDTO);
@@ -42,8 +50,8 @@ class CartDTO
     }
 
     /**
-     * @param string $itemId
-     * @param int $quantity
+     * @param  string  $itemId
+     * @param  int  $quantity
      */
     public function changeQuantity(string $itemId, int $quantity): void
     {
@@ -57,8 +65,8 @@ class CartDTO
     }
 
     /**
-     * @param string $itemId
-     * @param string $size
+     * @param  string  $itemId
+     * @param  string  $size
      */
     public function changeSize(string $itemId, string $size): void
     {
@@ -76,6 +84,19 @@ class CartDTO
         $this->items = array_values(array_filter($this->items, function (CartItemDTO $cartItemDTO) use ($itemId) {
             return $cartItemDTO->id !== $itemId;
         }));
+    }
+
+    /**
+     * @return float
+     */
+    public function calcPrice(): float
+    {
+        $result = 0;
+        foreach ($this->items as $item) {
+            $result += $item->calcPrice() * $item->quantity;
+        }
+
+        return $result;
     }
 
     public function toArray(): array

@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::table('pizzas', function (Blueprint $table) {
             $table->decimal('price', 8, 2)->default(0);
+            $table->string('name')->nullable()->after('preset_id')->default(null);
+
             $table->foreignId('order_id')
                 ->constrained()
                 ->cascadeOnDelete()
@@ -20,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pizzas', function (Blueprint $table) {
-            $table->dropColumn('price');
+            $table->dropColumn(['price', 'name']);
             $table->dropConstrainedForeignId('order_id');
         });
     }

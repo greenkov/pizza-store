@@ -16,6 +16,11 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    quantity: {
+        type: Number,
+        required: false,
+        default: 1,
+    },
 });
 
 const calories = computed(() => {
@@ -30,7 +35,7 @@ const calories = computed(() => {
     );
 
     return Math.round(
-        (props.calcData.md_base_cal + toppingCalories) * coefficient,
+        (props.calcData.md_base_cal + toppingCalories) * coefficient * props.quantity,
     );
 });
 </script>

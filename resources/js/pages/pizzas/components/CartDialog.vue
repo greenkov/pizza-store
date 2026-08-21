@@ -1,5 +1,5 @@
 <script setup>
-import { Form, router, usePage } from '@inertiajs/vue3';
+import { Form, Link, router, usePage } from '@inertiajs/vue3';
 import { Minus, Plus, ShoppingCart } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import CartController from '@/actions/App/Http/Controllers/CartController.ts';
@@ -15,10 +15,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import OrderController from '@/actions/App/Http/Controllers/OrderController.ts';
 
 const page = usePage();
 
 const cart = computed(() => page.props.cart ?? { items: [], total: 0 });
+
+const totalQuantityInCart = computed(() => {
+    return cart.value.items.reduce((acc, item) => acc + item.quantity, 0);
+});
 
 const sizes = [
     { value: 'sm', label: 'SM' },
@@ -69,6 +74,7 @@ const setSize = (item, size) => {
 const increaseQuantity = (item) => setQuantity(item, item.quantity + 1);
 
 const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
+
 </script>
 
 <template>
@@ -77,8 +83,8 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
             <Button variant="secondary" size="sm">
                 <ShoppingCart />
                 Cart
-                <Badge v-if="cart.items.length" variant="default">
-                    {{ cart.items.length }}
+                <Badge v-if="totalQuantityInCart" variant="default">
+                    {{ totalQuantityInCart }}
                 </Badge>
             </Button>
         </DialogTrigger>
@@ -112,9 +118,7 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
                         <p class="font-medium">
                             {{ item.name }}
                         </p>
-                        <p
-                            class="truncate text-sm text-gray-600 dark:text-gray-400"
-                        >
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
                             {{ item.toppings.join(', ') || 'No toppings' }}
                         </p>
                     </div>
@@ -225,6 +229,9 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
                         Keep shopping
                     </Button>
                 </DialogClose>
+                <Button as-child variant="default">
+                    <Link :href="OrderController.create()">Order</Link>
+                </Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>

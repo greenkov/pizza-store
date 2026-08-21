@@ -86,4 +86,9 @@ class CartService
         $cart->removeItem($itemId);
         $this->storeCartToSession($cart);
     }
+
+    public function clearCart(): void
+    {
+        session()->put('cart', []);
+    }
 }

@@ -3,22 +3,23 @@
 namespace App\Services\Cart\Objects;
 
 use App\Models\PizzaPreset;
+use App\Models\Topping;
 use Arr;
 
 class CartItemDTO
 {
     /**
-     * @param string|null $id
-     * @param string $size
-     * @param string|null $name
-     * @param int|null $presetId
-     * @param array $toppingsList
-     * @param int $quantity
+     * @param  string|null  $id
+     * @param  string  $size
+     * @param  string|null  $name
+     * @param  int|null  $presetId
+     * @param  array  $toppingsList
+     * @param  int  $quantity
      */
     private function __construct(
         public ?string $id,
         public string $size,
-        public readonly ?string $name = 'Unknown Pizza',
+        public readonly ?string $name,
         public readonly ?int $presetId,
         public readonly array $toppingsList,
         public int $quantity = 1,
@@ -27,9 +28,8 @@ class CartItemDTO
     }
 
     /**
-     * @param string $size
-     * @param int $presetId
-     *
+     * @param  string  $size
+     * @param  int  $presetId
      * @return self
      */
     public static function buildFromPresetId(string $size, int $presetId): self
@@ -40,9 +40,8 @@ class CartItemDTO
     }
 
     /**
-     * @param string $size
-     * @param array $toppingsList
-     *
+     * @param  string  $size
+     * @param  array  $toppingsList
      * @return self
      */
     public static function buildFromCustomToppingsList(string $name, string $size, array $toppingsList): self
@@ -51,8 +50,7 @@ class CartItemDTO
     }
 
     /**
-     * @param array $params
-     *
+     * @param  array  $params
      * @return self
      */
     public static function buildFromRequestParams(array $params): self
@@ -63,8 +61,7 @@ class CartItemDTO
     }
 
     /**
-     * @param array $data
-     *
+     * @param  array  $data
      * @return self
      */
     public static function buildFromArray(array $data): self
@@ -80,8 +77,7 @@ class CartItemDTO
     }
 
     /**
-     * @param CartItemDTO $cartItemDTO
-     *
+     * @param  CartItemDTO  $cartItemDTO
      * @return bool
      */
     public function equalTo(CartItemDTO $cartItemDTO): bool
@@ -95,6 +91,25 @@ class CartItemDTO
         return $cartItemDTO->presetId === $this->presetId
             && $cartItemDTO->size === $this->size
             && $currentToppings === $otherToppings;
+    }
+
+    /**
+     * @return float
+     */
+    public function calcPrice(): float
+    {
+        $sizeCoef = $this->size === PizzaPreset::SIZE_MEDIUM
+            ? 1.0
+            : (float) config("calories.{$this->size}_coefficient", 1);
+
+        $result = (float) config('calories.md_base_price');
+
+        $toppings = Topping::whereIn('code', $this->toppingsList)->get()->keyBy('code');
+        foreach ($this->toppingsList as $toppingCode) {
+            $result += $toppings[$toppingCode]->md_price;
+        }
+
+        return round($result * $sizeCoef, 2);
     }
 
     /**

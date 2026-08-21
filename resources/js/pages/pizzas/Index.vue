@@ -17,10 +17,8 @@ defineProps({
 });
 
 const startCustomization = (data) => {
-    console.log(data);
     customizationData.name = data.name;
     customizationData.toppings = data.toppings;
-    console.log(customizationData);
     isBuilderOpen.value = true;
 };
 

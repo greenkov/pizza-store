@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PizzaPresetController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{id}', [CartController::class, 'update'])->name('card.update');
         Route::delete('/remove/{id}', [CartController::class, 'destroy'])->name('card.destroy');
     });
+
+    Route::resource('order', OrderController::class)->only(['create', 'store']);
 });
 
 require __DIR__.'/settings.php';

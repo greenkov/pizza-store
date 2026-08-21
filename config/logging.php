@@ -135,6 +135,22 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'payment_logs' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/payments.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'max_files' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
+        'delivery_logs' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/delivery.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'max_files' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

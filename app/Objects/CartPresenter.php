@@ -29,6 +29,7 @@ class CartPresenter
                     ? ($presetNames[$item['preset_id']] ?? __('Unavailable pizza'))
                     : Arr::get($item, 'name', __('Custom pizza')),
                 'size' => $item['size'],
+                'topping_codes' => $item['topping_codes'] ?? [],
                 'toppings' => array_map(
                     static fn (string $code): string => $toppings[$code]->name ?? $code,
                     $item['topping_codes'],

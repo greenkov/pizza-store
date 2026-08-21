@@ -12,10 +12,9 @@ class OrderedPizza extends Model
     /** @use HasFactory<OrderedPizzaFactory> */
     use HasFactory;
 
-    public const TYPE_PRESET = 'preset';
+    public const string TYPE_PRESET = 'preset';
 
-    public const TYPE_CUSTOM = 'custom';
-
+    public const string TYPE_CUSTOM = 'custom';
 
     /**
      * @var string
@@ -31,6 +30,7 @@ class OrderedPizza extends Model
         'preset_id',
         'order_id',
         'price',
+        'name',
         'topping_codes',
     ];
 
