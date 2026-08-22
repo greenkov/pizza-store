@@ -18,6 +18,7 @@ class PaypalPaymentMethod extends BasicPaymentMethod
     }
 
     /**
+     * @param  int  $orderId
      * @param  float  $total
      *
      * @throws PaymentCredentialsInvalidException

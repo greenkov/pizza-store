@@ -103,6 +103,7 @@ abstract class BasicPaymentMethod implements IPaymentMethod
     public function validate(float $total): void
     {
         if (! $this->validateCredentials()) {
+            $this->logError('Invalid credentials.');
             throw new PaymentCredentialsInvalidException('Invalid credentials.');
         }
         $this->validateTotal($total);
@@ -116,6 +117,10 @@ abstract class BasicPaymentMethod implements IPaymentMethod
     protected function validateTotal(float $total): void
     {
         if ($this->paymentLimit > 0 && $total > $this->paymentLimit) {
+            $this->logError('Payment limit exceeded', [
+                'limit' => $this->paymentLimit,
+                'total' => $total,
+            ]);
             throw new PaymentLimitExceededException('Payment limit exceeded');
         }
     }

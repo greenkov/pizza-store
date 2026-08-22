@@ -36,7 +36,8 @@ class MastercardPaymentMethod extends BasicPaymentMethod
     }
 
     /**
-     * @param  float  $total
+     * @param int $orderId
+     * @param float $total
      *
      * @throws PaymentCredentialsInvalidException
      * @throws PaymentLimitExceededException

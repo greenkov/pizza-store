@@ -6,6 +6,27 @@ use Database\Factories\ToppingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $code
+ * @property int $md_cal
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property numeric $md_price
+ * @method static \Database\Factories\ToppingFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping whereMdCal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping whereMdPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Topping whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Topping extends Model
 {
     /** @use HasFactory<ToppingFactory> */

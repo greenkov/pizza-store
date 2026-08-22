@@ -11,7 +11,7 @@ class ProcessPaidOrdersJob implements ShouldQueue
 {
     use Queueable;
 
-    public $queue = '{ProcessPaidOrderQueue}';
+    private const string DEFAULT_QUEUE = '{ProcessPaidOrderQueue}';
 
     /**
      * @var Order
@@ -24,6 +24,7 @@ class ProcessPaidOrdersJob implements ShouldQueue
     public function __construct(Order $order)
     {
         $this->order = $order;
+        $this->onQueue(self::DEFAULT_QUEUE);
     }
 
     public function handle(): void

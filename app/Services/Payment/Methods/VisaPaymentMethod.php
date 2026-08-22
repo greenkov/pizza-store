@@ -36,8 +36,8 @@ class VisaPaymentMethod extends BasicPaymentMethod
     }
 
     /**
-     * @param int $orderId
-     * @param float $total
+     * @param  int  $orderId
+     * @param  float  $total
      *
      * @throws PaymentCredentialsInvalidException
      * @throws PaymentLimitExceededException

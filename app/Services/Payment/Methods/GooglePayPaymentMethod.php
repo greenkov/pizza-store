@@ -5,13 +5,12 @@ namespace App\Services\Payment\Methods;
 use App\Services\Payment\BasicPaymentMethod;
 use App\Services\Payment\Exceptions\PaymentCredentialsInvalidException;
 use App\Services\Payment\Exceptions\PaymentLimitExceededException;
-use Str;
 
 class GooglePayPaymentMethod extends BasicPaymentMethod
 {
     /**
-     * @param int $orderId
-     * @param float $total
+     * @param  int  $orderId
+     * @param  float  $total
      *
      * @throws PaymentCredentialsInvalidException
      * @throws PaymentLimitExceededException

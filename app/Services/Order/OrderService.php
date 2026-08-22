@@ -9,6 +9,10 @@ use App\Services\Delivery\DeliveryMethods\AbstractDeliveryMethodDriver;
 use App\Services\Delivery\DeliveryMethods\DeliveryDriverFactory;
 use App\Services\Delivery\DeliveryService;
 use App\Services\Order\Exceptions\InvalidOrderException;
+use App\Services\Order\Middleware\HandleOrderControllerExceptionsMiddleware;
+use Illuminate\Routing\Attributes\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Support\Collection;
 
 class OrderService
 {
@@ -49,9 +53,9 @@ class OrderService
     }
 
     /**
-     * @return array|Order[]
+     * @return Collection|Order[]
      */
-    public function loadPaidOrders(): array
+    public function loadPaidOrders(): Collection
     {
         return Order::where('user_id', auth()->id())
             ->where('status', Order::STATUS_PAID)
