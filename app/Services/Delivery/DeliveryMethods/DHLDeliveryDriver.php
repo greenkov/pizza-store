@@ -15,15 +15,16 @@ class DHLDeliveryDriver extends AbstractDeliveryMethodDriver
     public const string STATUS_REJECTED = 'rejected';
 
     /**
-     * @param  array  $parcelData
+     * @param array $parcelData
      */
-    public function sendDataToDeliver(array $parcelData)
+    public function sendDataToDeliver(array $parcelData): void
     {
         $this->logInfo('Parcel data sent to delivery service API.', $parcelData);
     }
 
     /**
-     * @param  array  $parcelData
+     * @param array $parcelData
+     *
      * @return string
      */
     public function requestParcelStatus(array $parcelData): string
@@ -39,13 +40,14 @@ class DHLDeliveryDriver extends AbstractDeliveryMethodDriver
         $statusIndex = array_rand($availableStatuses);
         $statusFromAPI = $availableStatuses[$statusIndex];
         $result = $this->mapStatusToCommon($statusFromAPI);
-        $this->logInfo("Parcel status from API: {$statusFromAPI} (mapped: {$result})");
+        $this->logInfo("Parcel status from API: {$statusFromAPI} (mapped: {$result})", $parcelData);
 
         return $result;
     }
 
     /**
-     * @param  string  $serviceSpecificStatus
+     * @param string $serviceSpecificStatus
+     *
      * @return string
      */
     protected function mapStatusToCommon(string $serviceSpecificStatus): string
@@ -62,6 +64,6 @@ class DHLDeliveryDriver extends AbstractDeliveryMethodDriver
      */
     protected function getServiceKey(): string
     {
-        return 'DHL';
+        return DeliveryDriverFactory::DRIVER_DHL;
     }
 }

@@ -47,7 +47,7 @@ class OrderController extends Controller implements HasMiddleware
     }
 
     /**
-     * @param  StoreOrderRequest  $request
+     * @param StoreOrderRequest $request
      * @return RedirectResponse
      *
      * @throws CircularDependencyException
@@ -71,6 +71,11 @@ class OrderController extends Controller implements HasMiddleware
         try {
             $paymentService->payOrder($order, $paymentParams);
         } catch (PaymentException $e) {
+            $order->update([
+                'status' => Order::STATUS_CANCELED,
+                'cancellation_reason' => 'Payment failed',
+            ]);
+
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
             throw ValidationException::withMessages([
                 'payment_method' => $e->getMessage(),

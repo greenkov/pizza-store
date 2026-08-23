@@ -17,7 +17,7 @@ abstract class AbstractDeliveryMethodDriver implements IDeliveryMethod
 
     const string STATUS_FAILED = 'failed';
 
-    abstract public function sendDataToDeliver(array $parcelData);
+    abstract public function sendDataToDeliver(array $parcelData): void;
 
     abstract public function requestParcelStatus(array $parcelData): string;
 

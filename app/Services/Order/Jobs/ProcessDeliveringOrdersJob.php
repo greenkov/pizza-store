@@ -8,11 +8,11 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class ProcessPaidOrdersJob implements ShouldBeUnique, ShouldQueue
+class ProcessDeliveringOrdersJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    private const string DEFAULT_QUEUE = '{ProcessPaidOrderQueue}';
+    private const string DEFAULT_QUEUE = '{ProcessDeliveringOrderQueue}';
 
     /**
      * @var Order
@@ -20,7 +20,7 @@ class ProcessPaidOrdersJob implements ShouldBeUnique, ShouldQueue
     private Order $order;
 
     /**
-     * @param Order $order
+     * @param  Order  $order
      */
     public function __construct(Order $order)
     {
@@ -30,7 +30,7 @@ class ProcessPaidOrdersJob implements ShouldBeUnique, ShouldQueue
 
     public function handle(): void
     {
-        app(OrderService::class)->sendDeliveryRequest($this->order);
+        app(OrderService::class)->refreshStatus($this->order);
     }
 
     /**

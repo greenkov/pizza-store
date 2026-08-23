@@ -34,7 +34,7 @@ class DeliveryService
      * @param  Order  $order
      * @return void
      */
-    private function requestDelivery(Order $order): void
+    public function requestDelivery(Order $order): void
     {
         $this->deliveryDriver->sendDataToDeliver($order->toArray());
     }

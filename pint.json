@@ -1,6 +1,8 @@
 {
     "preset": "laravel",
     "rules": {
-        "no_superfluous_phpdoc_tags": false
+        "no_superfluous_phpdoc_tags": false,
+        "phpdoc_separation": { "groups": [["param"], ["return"], ["throws"]] },
+        "phpdoc_align": { "align": "left" }
     }
 }

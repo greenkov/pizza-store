@@ -13,13 +13,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property numeric $total_price
  * @property \Carbon\CarbonImmutable|null $created_at
  * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property string|null $delivery_key
+ * @property string|null $cancellation_reason
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderedPizza> $orderedPizzas
  * @property-read int|null $ordered_pizzas_count
  * @property-read \App\Models\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCancellationReason($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTotalPrice($value)
@@ -62,6 +66,8 @@ class Order extends Model
         'user_id',
         'status',
         'total_price',
+        'delivery_key',
+        'cancellation_reason',
     ];
 
     /**

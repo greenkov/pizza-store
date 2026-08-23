@@ -10,6 +10,11 @@ class DeliveryDriverFactory
 
     public const string DRIVER_FED_EX = 'fed_ex';
 
+    public const array AVAILABLE_DRIVERS = [
+        self::DRIVER_DHL,
+        self::DRIVER_FED_EX,
+    ];
+
     /**
      * @param  string  $deliveryDriver
      * @return IDeliveryMethod

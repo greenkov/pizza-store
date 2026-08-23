@@ -9,15 +9,13 @@ use App\Services\Delivery\DeliveryMethods\AbstractDeliveryMethodDriver;
 use App\Services\Delivery\DeliveryMethods\DeliveryDriverFactory;
 use App\Services\Delivery\DeliveryService;
 use App\Services\Order\Exceptions\InvalidOrderException;
-use App\Services\Order\Middleware\HandleOrderControllerExceptionsMiddleware;
-use Illuminate\Routing\Attributes\Controllers\Middleware;
-use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Collection;
 
 class OrderService
 {
     /**
-     * @param  CartDTO  $cart
+     * @param CartDTO $cart
+     *
      * @return Order
      *
      * @throws InvalidOrderException
@@ -30,10 +28,12 @@ class OrderService
 
         $totalPrice = $cart->calcPrice();
 
+        $deliveryServiceKey = DeliveryDriverFactory::AVAILABLE_DRIVERS[array_rand(DeliveryDriverFactory::AVAILABLE_DRIVERS)];
         $order = Order::create([
             'user_id' => auth()->user()->id,
             'status' => Order::STATUS_PENDING,
             'total_price' => $totalPrice,
+            'delivery_key' => $deliveryServiceKey,
         ]);
 
         foreach ($cart->getItems() as $item) {
@@ -53,21 +53,51 @@ class OrderService
     }
 
     /**
-     * @return Collection|Order[]
+     * @param array|null $orderIds
+     *
+     * @return Collection
      */
-    public function loadPaidOrders(): Collection
+    public function loadPaidOrders(?array $orderIds = []): Collection
     {
-        return Order::where('user_id', auth()->id())
-            ->where('status', Order::STATUS_PAID)
+        return Order::where('status', Order::STATUS_PAID)
+            ->when($orderIds && count($orderIds) > 0, function ($query) use ($orderIds) {
+                $query->whereIn('id', $orderIds);
+            })
             ->get();
     }
 
     /**
-     * @param  Order  $order
+     * @param array|null $orderIds
+     *
+     * @return Collection
+     */
+    public function loadDeliveringOrders(?array $orderIds = []): Collection
+    {
+        return Order::where('status', Order::STATUS_DELIVERING)
+            ->when($orderIds && count($orderIds) > 0, function ($query) use ($orderIds) {
+                $query->whereIn('id', $orderIds);
+            })
+            ->get();
+    }
+
+    /**
+     * @param Order $order
+     */
+    public function sendDeliveryRequest(Order $order): void
+    {
+        $deliveryServiceKey = $order->delivery_key ?? DeliveryDriverFactory::DRIVER_DHL;
+        $deliveryService = app(DeliveryService::class, ['deliveryDriver' => $deliveryServiceKey]);
+        $deliveryService->requestDelivery($order);
+        $order->update(['status' => Order::STATUS_DELIVERING]);
+    }
+
+    /**
+     * @param Order $order
      */
     public function refreshStatus(Order $order): void
     {
-        $deliveryService = app(DeliveryService::class, ['deliveryDriver' => DeliveryDriverFactory::DRIVER_DHL]);
+        $deliveryServiceKey = $order->delivery_key ?? DeliveryDriverFactory::DRIVER_DHL;
+        $deliveryService = app(DeliveryService::class, ['deliveryDriver' => $deliveryServiceKey]);
         $newStatus = $deliveryService->requestParcelStatus($order);
 
         switch ($newStatus) {
@@ -79,7 +109,10 @@ class OrderService
                 $order->update(['status' => Order::STATUS_COMPLETED]);
                 break;
             case AbstractDeliveryMethodDriver::STATUS_FAILED:
-                $order->update(['status' => Order::STATUS_CANCELED]);
+                $order->update([
+                    'status' => Order::STATUS_CANCELED,
+                    'cancellation_reason' => 'Delivery failed',
+                ]);
                 break;
             default:
         }

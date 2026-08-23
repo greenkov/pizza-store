@@ -39,7 +39,7 @@ class FedExDeliveryDriver extends AbstractDeliveryMethodDriver
         $statusIndex = array_rand($availableStatuses);
         $statusFromAPI = $availableStatuses[$statusIndex];
         $result = $this->mapStatusToCommon($statusFromAPI);
-        $this->logInfo("Parcel status from API: {$statusFromAPI} (mapped: {$result})");
+        $this->logInfo("Parcel status from API: {$statusFromAPI} (mapped: {$result})", $parcelData);
 
         return $result;
     }
@@ -62,6 +62,6 @@ class FedExDeliveryDriver extends AbstractDeliveryMethodDriver
      */
     protected function getServiceKey(): string
     {
-        return 'FEDEX';
+        return DeliveryDriverFactory::DRIVER_FED_EX;
     }
 }
