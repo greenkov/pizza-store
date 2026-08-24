@@ -3,6 +3,7 @@
     "rules": {
         "no_superfluous_phpdoc_tags": false,
         "phpdoc_separation": { "groups": [["param"], ["return"], ["throws"]] },
-        "phpdoc_align": { "align": "left" }
+        "phpdoc_align": { "align": "left" },
+        "concat_space": { "spacing": "one" }
     }
 }

@@ -18,6 +18,7 @@ use Storage;
  * @property CarbonImmutable|null $updated_at
  * @property CarbonImmutable|null $deleted_at
  * @property string|null $image_path
+ * @property int $hot
  *
  * @method static \Database\Factories\PizzaPresetFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset newModelQuery()
@@ -26,6 +27,7 @@ use Storage;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset whereHot($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset whereImagePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset whereName($value)
@@ -65,6 +67,7 @@ class PizzaPreset extends Model
         'name',
         'topping_codes',
         'image_path',
+        'hot',
     ];
 
     /**

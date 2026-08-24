@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Flame } from '@lucide/vue';
 import { computed } from 'vue';
 import PizzaPresetController from '@/actions/App/Http/Controllers/PizzaPresetController.ts';
 import { Button } from '@/components/ui/button/index.ts';
@@ -27,6 +28,8 @@ defineOptions({
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+
+const isHot = (preset) => preset.hot === 1;
 </script>
 
 <template>
@@ -54,7 +57,15 @@ const user = computed(() => page.props.auth.user);
                 />
 
                 <div class="min-w-0 flex-1">
-                    <h3 class="font-semibold">{{ preset.name }}</h3>
+                    <h3 class="flex items-center gap-1.5 font-semibold">
+                        {{ preset.name }}
+                        <Flame
+                            v-if="isHot(preset)"
+                            class="size-4 shrink-0 text-orange-500 dark:text-orange-400"
+                            aria-hidden="true"
+                        />
+                        <span v-if="isHot(preset)" class="sr-only">Hot</span>
+                    </h3>
                     <p
                         class="truncate text-sm text-gray-600 dark:text-gray-400"
                     >

@@ -17,19 +17,26 @@ class PizzaPresetController extends Controller
 {
     /**
      * @param Request $request
+     *
      * @return Response|ResponseFactory
+     *
      * @throws \Throwable
      */
     public function index(Request $request)
     {
-        $items = PizzaPreset::all();
+        $items = PizzaPreset::query()
+            ->orderBy('hot', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return inertia('pizzas/Index', ['presets' => $items->toResourceCollection(PizzaPresetResource::class)]);
     }
 
     /**
      * @param Request $request
+     *
      * @return Response|ResponseFactory
+     *
      * @throws \Throwable
      */
     public function adminIndex(Request $request)
@@ -41,6 +48,7 @@ class PizzaPresetController extends Controller
 
     /**
      * @param CreatePizzaPreset $request
+     *
      * @return Response
      */
     public function create(CreatePizzaPreset $request)
@@ -54,6 +62,7 @@ class PizzaPresetController extends Controller
 
     /**
      * @param StorePizzaPreset $request
+     *
      * @return RedirectResponse
      */
     public function store(StorePizzaPreset $request)
@@ -78,6 +87,7 @@ class PizzaPresetController extends Controller
 
     /**
      * @param PizzaPreset $pizzaPreset
+     *
      * @return Response
      */
     public function edit(PizzaPreset $pizzaPreset)
@@ -90,6 +100,7 @@ class PizzaPresetController extends Controller
     /**
      * @param UpdatePizzaPreset $request
      * @param PizzaPreset $pizzaPreset
+     *
      * @return RedirectResponse
      */
     public function update(UpdatePizzaPreset $request, PizzaPreset $pizzaPreset)
@@ -104,6 +115,7 @@ class PizzaPresetController extends Controller
 
     /**
      * @param PizzaPreset $pizzaPreset
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function destroy(PizzaPreset $pizzaPreset)

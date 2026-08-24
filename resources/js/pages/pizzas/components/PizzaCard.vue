@@ -1,6 +1,6 @@
 <script setup>
 import { Form } from '@inertiajs/vue3';
-import { ShoppingCart } from '@lucide/vue';
+import { Flame, ShoppingCart } from '@lucide/vue';
 import { computed } from 'vue';
 import CartController from '@/actions/App/Http/Controllers/CartController.ts';
 import { Button } from '@/components/ui/button/index.ts';
@@ -21,6 +21,8 @@ const customizationData = computed(() => {
         toppings: props.item.topping_codes,
     };
 });
+
+const isHot = computed(() => props.item.hot === 1);
 </script>
 
 <template>
@@ -30,10 +32,18 @@ const customizationData = computed(() => {
                 :src="item.image_url ?? '/pizza_placeholder.png'"
                 :alt="item.name"
                 loading="lazy"
-                class="aspect-video w-full scale-120 rounded-md object-cover object-[center_125%]"
+                class="aspect-video w-full scale-117 rounded-md object-cover object-[center_125%]"
             />
 
-            <h3 class="font-semibold">{{ item.name }}</h3>
+            <h3 class="flex items-center gap-1.5 font-semibold">
+                {{ item.name }}
+                <Flame
+                    v-if="isHot"
+                    class="size-4 shrink-0 text-orange-500 dark:text-orange-400"
+                    aria-hidden="true"
+                />
+                <span v-if="isHot" class="sr-only">Hot</span>
+            </h3>
 
             <ul
                 class="flex-1 list-inside list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400"
