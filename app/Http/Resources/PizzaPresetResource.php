@@ -20,14 +20,14 @@ class PizzaPresetResource extends JsonResource
             ];
         }, $this->topping_codes);
 
-        $image = $this->image_path
-            ? \Storage::disk('public')->get($this->image_path)
+        $imageUrl = $this->image_path
+            ? $this->resource->getImageUrl()
             : null;
 
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image' => $image,
+            'image_url' => $imageUrl,
             'topping_codes' => $this->topping_codes,
             'toppings' => $toppingNamesMap,
         ];

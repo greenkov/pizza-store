@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PizzaPresets\CreatePizzaPresets;
+use App\Http\Requests\PizzaPresets\CreatePizzaPreset;
 use App\Http\Requests\PizzaPresets\StorePizzaPreset;
 use App\Http\Requests\PizzaPresets\UpdatePizzaPreset;
 use App\Http\Resources\PizzaPresetResource;
 use App\Models\PizzaPreset;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
+use Inertia\ResponseFactory;
 
 class PizzaPresetController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @param Request $request
+     * @return Response|ResponseFactory
+     * @throws \Throwable
      */
     public function index(Request $request)
     {
@@ -22,6 +27,11 @@ class PizzaPresetController extends Controller
         return inertia('pizzas/Index', ['presets' => $items->toResourceCollection(PizzaPresetResource::class)]);
     }
 
+    /**
+     * @param Request $request
+     * @return Response|ResponseFactory
+     * @throws \Throwable
+     */
     public function adminIndex(Request $request)
     {
         $items = PizzaPreset::query()->orderBy('created_at', 'desc')->get();
@@ -30,9 +40,10 @@ class PizzaPresetController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @param CreatePizzaPreset $request
+     * @return Response
      */
-    public function create(CreatePizzaPresets $request)
+    public function create(CreatePizzaPreset $request)
     {
         $toppingCodes = explode(',', $request->validated('topping_codes'));
 
@@ -42,11 +53,14 @@ class PizzaPresetController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @param StorePizzaPreset $request
+     * @return RedirectResponse
      */
     public function store(StorePizzaPreset $request)
     {
-        PizzaPreset::create($request->validated());
+        $dataForCreation = $request->validated();
+        $dataForCreation['image_path'] = PizzaPreset::getRandomImagePath();
+        PizzaPreset::create($dataForCreation);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Pizza preset
   created.')]);
@@ -63,7 +77,8 @@ class PizzaPresetController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * @param PizzaPreset $pizzaPreset
+     * @return Response
      */
     public function edit(PizzaPreset $pizzaPreset)
     {
@@ -73,7 +88,9 @@ class PizzaPresetController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @param UpdatePizzaPreset $request
+     * @param PizzaPreset $pizzaPreset
+     * @return RedirectResponse
      */
     public function update(UpdatePizzaPreset $request, PizzaPreset $pizzaPreset)
     {
@@ -86,7 +103,8 @@ class PizzaPresetController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @param PizzaPreset $pizzaPreset
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function destroy(PizzaPreset $pizzaPreset)
     {

@@ -17,9 +17,9 @@ class ToppingCodesCreatePizzaPresetRule implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $toppingCodes = array_unique(explode(',', $value));
-        $validToppingsCound = Topping::whereIn('code', $toppingCodes)->count();
+        $validToppingsCount = Topping::whereIn('code', $toppingCodes)->count();
 
-        if ($validToppingsCound !== count($toppingCodes)) {
+        if ($validToppingsCount !== count($toppingCodes)) {
             $fail('Some of topping codes are unavailable.');
         }
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\PizzaPresets;
 
 use App\Models\Topping;
+use App\Rules\ToppingCodeListIsValid;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePizzaPreset extends FormRequest
@@ -24,7 +25,12 @@ class StorePizzaPreset extends FormRequest
 
         return [
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'topping_codes' => ['required', 'array', 'min:1'],
+            'topping_codes' => [
+                'required',
+                'array',
+                'min:1',
+                new ToppingCodeListIsValid,
+            ],
             'topping_codes.*' => ['string', 'in:'.implode(',', $availableToppingCodes)],
         ];
     }

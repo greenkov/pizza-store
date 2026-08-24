@@ -23,9 +23,9 @@ class ToppingCodesInPizzaOrder implements ValidationRule
         }
 
         $toppingCodes = array_unique($value);
-        $validToppingsCound = Topping::whereIn('code', $toppingCodes)->count();
+        $validToppingsCount = Topping::whereIn('code', $toppingCodes)->count();
 
-        if ($validToppingsCound !== count($toppingCodes)) {
+        if ($validToppingsCount !== count($toppingCodes)) {
             $fail('Some of topping codes are unavailable.');
         }
     }

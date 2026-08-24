@@ -30,7 +30,7 @@ const customizationData = computed(() => {
                 :src="item.image_url ?? '/pizza_placeholder.png'"
                 :alt="item.name"
                 loading="lazy"
-                class="aspect-video w-full rounded-md object-cover"
+                class="aspect-video w-full scale-120 rounded-md object-cover object-[center_125%]"
             />
 
             <h3 class="font-semibold">{{ item.name }}</h3>
