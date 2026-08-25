@@ -15,16 +15,22 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
     public const PERIOD_WEEK = 'week';
 
     private const string DESCRIPTION = <<<'TXT'
-        Returns every pizza ordered during the requested period, as a JSON object keyed by
-        order id. Each pizza in an order has:
-        "name" - what the pizza was called at the time of ordering;
-        "size" - sm, md or lg;
-        "type" - "preset" if ordered from the menu, "custom" if the customer built it;
-        "topping_codes" - the toppings actually on that pizza, repeats are meaningful;
-        "order_id" - the order it belongs to;
-        "preset_id" - the preset it came from, null for custom pizzas.
-        One entry means one pizza sold. Cancelled and unpaid orders are already excluded,
-        so everything you receive is a real, paid sale.
+        Aggregated sales for the period. Everything is already counted - read the figures,
+        do not re-count. Keys:
+        "period" - {label, from, to};
+        "totals" - {orders, pizzas, preset_pizzas, custom_pizzas};
+        "size_distribution" - pizzas sold per size;
+        "combinations" - distinct recipes sold, most sold first. Each has "topping_codes"
+        (sorted, repeats meaningful), "pizzas", "orders", "as_preset"/"as_custom" (ordered
+        from the menu vs built by hand; they sum to "pizzas"), "preset_id" (the preset the
+        as_preset sales came from, null if none were) and "pizza_md_cal" (whole medium
+        pizza, dough base included);
+        "combinations_total" - distinct recipes sold in all; if it exceeds the entries
+        listed, the rest were dropped and the listed "pizzas" no longer add up to "totals";
+        "preset_sales" - presets that sold, most sold first: "id", "name", "topping_codes",
+        "hot", "is_available", "ordered_count";
+        "topping_frequency" - toppings by how many pizzas contained them, repeats counted.
+        Cancelled and unpaid orders are already excluded.
         TXT;
 
     private const string NAME = 'load_orders_details_for_period';
@@ -44,9 +50,8 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
                     'period' => [
                         'type' => 'string',
                         'enum' => [self::PERIOD_DAY, self::PERIOD_WEEK],
-                        'description' => 'Time window to analyse: "day" returns orders placed today, '
-                            . '"week" returns orders placed over the last seven days including today. '
-                            . 'Use the period the user asked for.',
+                        'description' => 'Time window: "day" is today, "week" is the last seven days '
+                            . 'including today. Use the period the user asked for.',
                     ],
                 ],
                 'required' => ['period'],
@@ -91,11 +96,13 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
         }
         $orderIdsForPeriod = $ordersForPeriodQuery->get()->pluck('id')->toArray();
 
-        $result = OrderedPizza::select(['name', 'size', 'type', 'topping_codes', 'order_id', 'preset_id'])
+        $orderedPizzas = OrderedPizza::select(['name', 'size', 'type', 'topping_codes', 'order_id', 'preset_id'])
             ->whereIn('order_id', $orderIdsForPeriod)
-            ->get()
-            ->groupBy('order_id')
-            ->toArray();
+            ->get();
+
+        $orderDataProcessor = new OrdersDataProcessor($orderedPizzas, $period);
+
+        $result = $orderDataProcessor->buildPayload();
 
         $this->logInfo('Result: ', $result);
 

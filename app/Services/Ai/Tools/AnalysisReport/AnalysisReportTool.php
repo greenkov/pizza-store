@@ -30,27 +30,24 @@ final class AnalysisReportTool extends AbstractTool
                 'properties' => [
                     'report_text' => [
                         'type' => 'string',
-                        'description' => 'Plain prose for a shop manager, 4 to 8 sentences, no markdown and '
-                            . 'no bullet lists. Cover the period and volume analysed, the preset versus custom '
-                            . 'split, the strongest topping combinations with figures, which presets you '
-                            . 'featured and why, and the direction of your recommendations. Refer to toppings '
-                            . 'by their human-readable name, never by code.',
+                        'description' => 'Plain prose for a shop manager, 4 to 8 sentences, no markdown or '
+                            . 'bullets: period and volume, preset versus custom split, strongest combinations '
+                            . 'with figures, which presets you featured and why, and where your '
+                            . 'recommendations point. Name toppings, never use codes.',
                     ],
                     'recommendations' => [
                         'type' => 'string',
-                        'description' => 'A JSON-encoded string proposing new pizzas the shop does not sell '
-                            . 'yet. The decoded value is an object with exactly three keys - "health", '
-                            . '"rich_taste" and "popularity_trend" - each mapping to an object of generated '
-                            . 'pizza name to array of topping codes. All three keys must be present. Each '
-                            . 'category holds 1 to 3 options, each option 2 to 6 topping codes. Example: '
+                        'description' => 'A JSON-encoded string. It decodes to an object with exactly the '
+                            . 'keys "health", "rich_taste" and "popularity_trend", each mapping pizza name to '
+                            . 'an array of topping codes. All three must be present, 1 to 3 options each, '
+                            . '2 to 6 codes per option. Example: '
                             . '{"health":{"Garden Protein Balance":["CHZ_1","MSHR_1","MT_1"]},'
                             . '"rich_taste":{"Four-Cheese Bacon Crown":["BOARDS","CHZ_1","CHZ_2","MT_2"]},'
                             . '"popularity_trend":{"Double Smoke Cheddar Rush":["CHZ_2","SSG_1","SSG_2"]}}',
                     ],
                     'hot_ids' => [
                         'type' => 'array',
-                        'description' => 'The same preset ids you passed to update_hot_flags, so the stored '
-                            . 'report records which presets were featured by this analysis.',
+                        'description' => 'The same preset ids you passed to update_hot_flags.',
                         'items' => [
                             'type' => 'integer',
                         ],

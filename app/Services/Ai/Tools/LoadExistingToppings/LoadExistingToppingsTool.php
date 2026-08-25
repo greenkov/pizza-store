@@ -8,11 +8,9 @@ use App\Services\Ai\Tools\AbstractTool;
 final class LoadExistingToppingsTool extends AbstractTool
 {
     private const string DESCRIPTION = <<<'TXT'
-        Returns the shop's full topping catalogue as a JSON array. Each entry has:
-        "code" - the identifier you must use in every topping list you produce;
-        "name" - the human-readable name, use it in report text and in pizza names;
-        "md_cal" - calories for a medium pizza, use it to judge whether a combination is light.
-        Call this before any other tool: every topping code you output must come from this list.
+        The shop's full topping catalogue: "code" (use these in every topping list you
+        output), "name" (for report text and pizza names), "md_cal" (calories this topping
+        adds to a medium pizza). Call it first - every code you output must come from here.
         TXT;
 
     private const string NAME = 'load_available_toppings';

@@ -10,11 +10,9 @@ use DB;
 final class UpdateHotFlagsTool extends AbstractTool
 {
     private const string DESCRIPTION = <<<'TXT'
-        Replaces the shop's featured ("hot") presets with the given set. This overwrites the
-        whole selection: every preset listed in "ids" becomes featured, and every preset not
-        listed stops being featured. Always pass the complete final list, never just the
-        additions. Call it exactly once per analysis, and only with ids returned by
-        load_available_pizza_presets.
+        Replaces the featured ("hot") presets with exactly the given ids: those become
+        featured, every other preset stops being featured. Always pass the complete final
+        list, never just the additions. Call it exactly once per analysis.
         TXT;
 
     private const string NAME = 'update_hot_flags';
@@ -33,10 +31,9 @@ final class UpdateHotFlagsTool extends AbstractTool
                 'properties' => [
                     'ids' => [
                         'type' => 'array',
-                        'description' => 'The complete list of preset ids that should be featured after this '
-                            . 'call. Any preset omitted here loses its featured status. Use 3 to 5 ids, ranked '
-                            . 'by how many pizzas were sold from each preset in the period. Must be existing '
-                            . 'preset ids.',
+                        'description' => 'The complete final list of featured preset ids, 3 to 5, ranked by '
+                            . 'sales in the period. Anything omitted loses its hot flag. Must be existing '
+                            . 'presets that are still available.',
                         'items' => [
                             'type' => 'integer',
                         ],

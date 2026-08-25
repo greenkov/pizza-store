@@ -52,7 +52,7 @@ class Topping extends Model
         'SSG_2' => "Smoked Hunter's Sausage",
         'MT_1' => 'Ham',
         'MT_2' => 'Bacon',
-        'MT_3' => 'Grilled Chicke',
+        'MT_3' => 'Grilled Chicken',
         'CHZ_1' => 'Mozzarella',
         'CHZ_2' => 'Cheddar',
         'CHZ_3' => 'Parmesan',

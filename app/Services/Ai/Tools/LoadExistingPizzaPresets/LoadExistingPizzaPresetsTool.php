@@ -8,13 +8,10 @@ use App\Services\Ai\Tools\AbstractTool;
 final class LoadExistingPizzaPresetsTool extends AbstractTool
 {
     private const string DESCRIPTION = <<<'TXT'
-        Returns the pizza presets the shop currently sells, as a JSON array. Each entry has:
-        "id" - the preset id, the only value accepted by update_hot_flags;
-        "name" - the menu name of the preset;
-        "topping_codes" - the toppings it is made of, repeats are meaningful;
-        "hot" - 1 if the preset is featured as popular right now, 0 if not.
-        Use it to learn which ids are valid before featuring presets, and to avoid
-        recommending a combination the shop already sells.
+        The presets the shop currently sells: "id" (the only value update_hot_flags accepts),
+        "name", "topping_codes" (repeats meaningful), "hot" (1 if featured right now).
+        Discontinued presets are not listed. Use it to know which ids are valid and which
+        recipes already exist.
         TXT;
 
     private const string NAME = 'load_available_pizza_presets';
@@ -33,9 +30,8 @@ final class LoadExistingPizzaPresetsTool extends AbstractTool
                 'properties' => [
                     'ids' => [
                         'type' => 'array',
-                        'description' => 'Preset ids to return. Pass an empty array to get the whole menu, '
-                            . 'which is what you normally want. Pass specific ids only when re-checking presets '
-                            . 'you already know about.',
+                        'description' => 'Pass an empty array for the whole menu - the normal case. '
+                            . 'Pass ids only to re-check specific presets.',
                         'items' => [
                             'type' => 'integer',
                         ],
