@@ -25,8 +25,8 @@ class PizzaPresetController extends Controller
     public function index(Request $request)
     {
         $items = PizzaPreset::query()
-            ->orderBy('hot', 'desc')
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('hot')
+            ->latest()
             ->get();
 
         return inertia('pizzas/Index', ['presets' => $items->toResourceCollection(PizzaPresetResource::class)]);
@@ -41,7 +41,7 @@ class PizzaPresetController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        $items = PizzaPreset::query()->orderBy('created_at', 'desc')->get();
+        $items = PizzaPreset::query()->latest()->get();
 
         return inertia('pizzas/manage/ListPizzaPreset', ['presets' => $items->toResourceCollection(PizzaPresetResource::class)]);
     }

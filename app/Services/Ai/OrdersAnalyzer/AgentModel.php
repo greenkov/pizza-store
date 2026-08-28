@@ -124,6 +124,9 @@ class AgentModel
         }
     }
 
+    /**
+     * @param array $dialogItem
+     */
     private function addToHistory(array $dialogItem): void
     {
         $this->history[] = $dialogItem;
@@ -143,30 +146,6 @@ class AgentModel
                 'instructions' => $this->personality(),
                 'input' => $this->history,
                 'tools' => $this->toolBox->definitions(),
-                //                'tools' => [
-                //                    [
-                //                        'type' => 'function',
-                //                        'name' => 'get_current_time',
-                //                        'description' => 'Returns current system time on a laptop as an ISO8601 string.',
-                //                    ],
-                //                    [
-                //                        'type' => 'function',
-                //                        'name' => 'read_file',
-                //                        'description' => "Reads a file within project root folder and returns it's content.",
-                //                        'parameters' => [
-                //                            'type' => 'object',
-                //                            'properties' => [
-                //                                'path' => [
-                //                                    'type' => 'string',
-                //                                    'description' => 'Relative path to file.',
-                //                                ],
-                //                            ],
-                //                            'required' => ['path'],
-                //                            'additionalProperties' => false,
-                //                        ],
-                //                        'strict' => true,
-                //                    ],
-                //                ],
             ])
             ->throw()
             ->json();

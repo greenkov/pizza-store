@@ -24,7 +24,7 @@ final readonly class ResponseWrapper
      */
     public function getOutputText(): string
     {
-        $texts = $this->getMessagesText();
+        $texts = $this->getMessageStrings();
 
         return implode("\n", $texts);
     }
@@ -50,7 +50,7 @@ final readonly class ResponseWrapper
     /**
      * @return array
      */
-    public function getMessagesText(): array
+    private function getMessageStrings(): array
     {
         $messageOutputItems = array_filter($this->getOutput(), static function ($item) {
             return ($item['type'] ?? '') === 'message';
