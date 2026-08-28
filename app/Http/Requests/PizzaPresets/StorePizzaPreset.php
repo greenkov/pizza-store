@@ -25,6 +25,7 @@ class StorePizzaPreset extends FormRequest
 
         return [
             'name' => ['required', 'string', 'min:3', 'max:255'],
+            'is_hot' => ['nullable', 'boolean'],
             'topping_codes' => [
                 'required',
                 'array',
@@ -41,6 +42,7 @@ class StorePizzaPreset extends FormRequest
             '*.required' => 'The :attribute field is required.',
             '*.string' => 'The :attribute has invalid type.',
             '*.array' => 'The :attribute has invalid type.',
+            '*.boolean' => 'The :attribute has invalid type.',
             'topping_codes.*.string' => 'Topping code has invalid type.',
             'topping_codes.*.in' => 'Topping code is invalid.',
         ];

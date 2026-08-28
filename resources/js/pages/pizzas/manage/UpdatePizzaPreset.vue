@@ -12,6 +12,7 @@ import Card from '@/pages/pizzas/components/Card.vue';
 import PriceCalculator from '@/pages/pizzas/components/PriceCalculator.vue';
 import SelectedToppings from '@/pages/pizzas/components/SelectedToppings.vue';
 import Topping from '@/pages/pizzas/components/Topping.vue';
+import { Checkbox } from '@/components/ui/checkbox/index.ts';
 
 const props = defineProps({
     pizzaPreset: {
@@ -37,6 +38,7 @@ setLayoutProps({
     ],
 });
 
+const isHot = ref(!!(props.pizzaPreset.hot || false));
 const selectedSize = ref('md');
 
 const sizes = [
@@ -109,6 +111,15 @@ const pizzaPresetData = reactive(Object.assign({}, props.pizzaPreset));
                     v-model="pizzaPresetData.name"
                 />
                 <InputError class="mt-2" :message="errors.name" />
+            </div>
+
+            <div class="grid max-w-md gap-2">
+                <input type="hidden" name="is_hot" :value="isHot ? 1 : 0" />
+                <Label for="is_hot" class="flex items-center space-x-3">
+                    <Checkbox id="is_hot" v-model="isHot" />
+                    <span>Is Hot</span>
+                </Label>
+                <InputError class="mt-2" :message="errors.is_hot" />
             </div>
 
             <Card>

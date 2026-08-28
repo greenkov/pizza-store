@@ -77,7 +77,7 @@ const isHot = (preset) => preset.hot === 1;
                     :href="
                         PizzaPresetController.create({
                             query: {
-                                topping_codes: preset.topping_codes.join(','),
+                                preset_id: preset.id,
                             },
                         })
                     "

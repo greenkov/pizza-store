@@ -7,6 +7,7 @@ use App\Http\Requests\PizzaPresets\StorePizzaPreset;
 use App\Http\Requests\PizzaPresets\UpdatePizzaPreset;
 use App\Http\Resources\PizzaPresetResource;
 use App\Models\PizzaPreset;
+use Arr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -53,10 +54,22 @@ class PizzaPresetController extends Controller
      */
     public function create(CreatePizzaPreset $request)
     {
-        $toppingCodes = explode(',', $request->validated('topping_codes'));
+        $presetId = $request->validated('preset_id') ?? null;
+        if ($presetId !== null) {
+            $pizzaPreset = PizzaPreset::findOrFail($presetId);
+            $name = trim($pizzaPreset->name . ' Duplicate');
+            $toppingCodes = $pizzaPreset->topping_codes;
+            $isHot = (bool)$pizzaPreset->hot;
+        } else {
+            $name = null;
+            $toppingCodes = [];
+            $isHot = false;
+        }
 
         return Inertia::render('pizzas/manage/CreatePizzaPreset', [
+            'initialName' => $name,
             'initialToppingCodes' => $toppingCodes,
+            'initialIsHot' => $isHot,
         ]);
     }
 
@@ -69,6 +82,8 @@ class PizzaPresetController extends Controller
     {
         $dataForCreation = $request->validated();
         $dataForCreation['image_path'] = PizzaPreset::getRandomImagePath();
+        $dataForCreation['hot'] = (bool)Arr::get($dataForCreation, 'is_hot', false) ?? false;
+        unset($dataForCreation['is_hot']);
         PizzaPreset::create($dataForCreation);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Pizza preset
@@ -105,7 +120,10 @@ class PizzaPresetController extends Controller
      */
     public function update(UpdatePizzaPreset $request, PizzaPreset $pizzaPreset)
     {
-        $pizzaPreset->update($request->validated());
+        $dataForUpdate = $request->validated();
+        $dataForUpdate['hot'] = (bool)Arr::get($dataForUpdate, 'is_hot', false) ?? false;
+        unset($dataForUpdate['is_hot']);
+        $pizzaPreset->update($dataForUpdate);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Pizza preset
   updated.')]);

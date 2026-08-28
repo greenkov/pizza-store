@@ -25,6 +25,10 @@ const totalQuantityInCart = computed(() => {
     return cart.value.items.reduce((acc, item) => acc + item.quantity, 0);
 });
 
+const isCartEmpty = computed(() => {
+    return cart.value.items.length === 0;
+});
+
 const sizes = [
     { value: 'sm', label: 'SM' },
     { value: 'md', label: 'MD' },
@@ -74,7 +78,6 @@ const setSize = (item, size) => {
 const increaseQuantity = (item) => setQuantity(item, item.quantity + 1);
 
 const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
-
 </script>
 
 <template>
@@ -229,7 +232,7 @@ const decreaseQuantity = (item) => setQuantity(item, item.quantity - 1);
                         Keep shopping
                     </Button>
                 </DialogClose>
-                <Button as-child variant="default">
+                <Button as-child variant="default" v-if="!isCartEmpty">
                     <Link :href="OrderController.create()">Order</Link>
                 </Button>
             </DialogFooter>
