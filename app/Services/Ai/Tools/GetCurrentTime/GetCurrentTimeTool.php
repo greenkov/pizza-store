@@ -2,6 +2,7 @@
 
 namespace App\Services\Ai\Tools\GetCurrentTime;
 
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Tools\AbstractTool;
 use Carbon\Carbon;
 
@@ -37,10 +38,11 @@ final class GetCurrentTimeTool extends AbstractTool
 
     /**
      * @param array $params
+     * @param TrackingMeta $trackingMeta
      *
      * @return string
      */
-    public function use(array $params): string
+    public function use(array $params, TrackingMeta $trackingMeta): string
     {
         $this->logInfo('Tool called...', $params);
 

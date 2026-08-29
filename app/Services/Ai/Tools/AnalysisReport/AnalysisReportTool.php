@@ -3,6 +3,7 @@
 namespace App\Services\Ai\Tools\AnalysisReport;
 
 use App\Models\AiOrdersAnalysis;
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Exceptions\InvalidParametersException;
 use App\Services\Ai\Tools\AbstractTool;
 use Throwable;
@@ -70,13 +71,13 @@ final class AnalysisReportTool extends AbstractTool
 
     /**
      * @param array $params
+     * @param TrackingMeta $trackingMeta
      *
      * @return string
      *
      * @throws InvalidParametersException
-     * @throws \JsonException
      */
-    public function use(array $params): string
+    public function use(array $params, TrackingMeta $trackingMeta): string
     {
         $this->logInfo('Tool called...', $params);
 
@@ -93,6 +94,7 @@ final class AnalysisReportTool extends AbstractTool
         $newEntry = null;
         try {
             $newEntry = AiOrdersAnalysis::create([
+                'conversation_uuid' => $trackingMeta->conversationUuid,
                 'report' => $reportText,
                 'presets_recommendations' => json_decode($recommendations, true, 512, JSON_THROW_ON_ERROR),
                 'new_hot_ids' => $pizzaPresetHotIds,

@@ -2,6 +2,7 @@
 
 namespace App\Services\Ai\Tools;
 
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Exceptions\BasicException as AiException;
 use Arr;
 use Throwable;
@@ -30,10 +31,11 @@ final class ToolBox
 
     /**
      * @param array $toolCall
+     * @param TrackingMeta $trackingMeta
      *
      * @return array
      */
-    public function useTool(array $toolCall): array
+    public function useTool(array $toolCall, TrackingMeta $trackingMeta): array
     {
         $name = Arr::get($toolCall, 'name');
         $callId = Arr::get($toolCall, 'call_id');
@@ -43,7 +45,7 @@ final class ToolBox
 
         if (Arr::has($this->tools, $name)) {
             try {
-                $callResult = Arr::get($this->tools, $name)->use($arguments);
+                $callResult = Arr::get($this->tools, $name)->use($arguments, $trackingMeta);
             } catch (AiException $aiException) {
                 return [
                     'call_id' => $callId,

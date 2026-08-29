@@ -3,6 +3,7 @@
 namespace App\Services\Ai\Tools\UpdateHotFlags;
 
 use App\Models\PizzaPreset;
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Exceptions\InvalidParametersException;
 use App\Services\Ai\Tools\AbstractTool;
 use DB;
@@ -56,13 +57,14 @@ final class UpdateHotFlagsTool extends AbstractTool
 
     /**
      * @param array $params
+     * @param TrackingMeta $trackingMeta
      *
      * @return string
      *
      * @throws InvalidParametersException
-     * @throws \JsonException
+     * @throws \Throwable
      */
-    public function use(array $params): string
+    public function use(array $params, TrackingMeta $trackingMeta): string
     {
         $this->logInfo('Tool called...', $params);
 

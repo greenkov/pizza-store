@@ -3,6 +3,7 @@
 namespace App\Services\Ai\Tools\LoadExistingPizzaPresets;
 
 use App\Models\PizzaPreset;
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Tools\AbstractTool;
 
 final class LoadExistingPizzaPresetsTool extends AbstractTool
@@ -59,7 +60,7 @@ final class LoadExistingPizzaPresetsTool extends AbstractTool
      *
      * @throws \JsonException
      */
-    public function use(array $params): string
+    public function use(array $params, TrackingMeta $trackingMeta): string
     {
         $this->logInfo('Tool called...', $params);
 

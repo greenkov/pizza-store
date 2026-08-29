@@ -4,6 +4,7 @@ namespace App\Services\Ai\Tools\LoadOrdersDetailsForPeriod;
 
 use App\Models\Order;
 use App\Models\OrderedPizza;
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Exceptions\InvalidParametersException;
 use App\Services\Ai\Tools\AbstractTool;
 use Carbon\Carbon;
@@ -71,12 +72,14 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
 
     /**
      * @param array $params
+     * @param TrackingMeta $trackingMeta
      *
      * @return string
      *
+     * @throws InvalidParametersException
      * @throws \JsonException
      */
-    public function use(array $params): string
+    public function use(array $params, TrackingMeta $trackingMeta): string
     {
         $this->logInfo('Tool called...', $params);
 

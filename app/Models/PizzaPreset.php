@@ -19,7 +19,6 @@ use Storage;
  * @property CarbonImmutable|null $deleted_at
  * @property string|null $image_path
  * @property int $hot
- *
  * @method static \Database\Factories\PizzaPresetFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset newQuery()
@@ -35,7 +34,6 @@ use Storage;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PizzaPreset withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class PizzaPreset extends Model

@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Services\Ai\OrdersAnalyzer;
+namespace App\Services\Ai\Agents\OrdersAnalyzer;
 
+use App\Services\Ai\Agents\Agent;
+use App\Services\Ai\Agents\ResponseWrappers\ResponseWrapper;
+use App\Services\Ai\Agents\ResponseWrappers\TokensLoggerWrapper;
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Exceptions\TooManyTurnsException;
-use App\Services\Ai\ResponseWrapper;
 use App\Services\Ai\Tools\AnalysisReport\AnalysisReportTool;
 use App\Services\Ai\Tools\GetCurrentTime\GetCurrentTimeTool;
 use App\Services\Ai\Tools\LoadExistingPizzaPresets\LoadExistingPizzaPresetsTool;
@@ -15,11 +18,13 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
-class AgentModel
+class AgentModel implements Agent
 {
     public const PERIOD_DAY = 'day';
 
     public const PERIOD_WEEK = 'week';
+
+    private const AGENT_NAME = 'OrdersAnalyzer';
 
     private const GUIDELINES_PATH = 'app/Services/Ai/OrdersAnalyzer/INSTRUCTIONS.md';
 
@@ -29,6 +34,11 @@ class AgentModel
      * @var string
      */
     private string $modelName;
+
+    /**
+     * @var string
+     */
+    private string $period;
 
     /**
      * @var array
@@ -45,9 +55,13 @@ class AgentModel
      */
     private int $turns = 0;
 
-    public function __construct(?string $modelName = null)
+    private TrackingMeta $metadata;
+
+    public function __construct(?string $modelName = null, string $period = self::PERIOD_DAY)
     {
         $this->modelName = $modelName ?? config('ai.openai.default_model');
+        $this->period = $period;
+        $this->metadata = new TrackingMeta(self::AGENT_NAME);
         $this->toolBox = new ToolBox([
             new GetCurrentTimeTool,
             new LoadExistingPizzaPresetsTool,
@@ -56,6 +70,50 @@ class AgentModel
             new UpdateHotFlagsTool,
             new AnalysisReportTool,
         ]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAgentName(): string
+    {
+        return self::AGENT_NAME;
+    }
+
+    /**
+     * @return string
+     *
+     * @throws ConnectionException
+     * @throws RequestException
+     * @throws TooManyTurnsException
+     */
+    public function runModel(): ResponseWrapper
+    {
+        $this->addToHistory([
+            'role' => 'user',
+            'content' => "Analyze orders for {$this->period} and give me summary info on them.",
+        ]);
+
+        while (true) {
+            if ($this->turns > self::MAX_AGENT_TURNS_PER_RUN) {
+                throw new TooManyTurnsException('Model took more than ' . self::MAX_AGENT_TURNS_PER_RUN . ' turns and likely got into infinite loop.');
+            }
+            $this->turns++;
+
+            $response = $this->makeRequest();
+            foreach ($response->getOutputItems() as $outputItem) {
+                $this->addToHistory($outputItem);
+            }
+
+            if (!$response->hasFunctionCalls()) {
+                return $response;
+            }
+
+            foreach ($response->getFunctionCalls() as $functionCall) {
+                $toolResult = $this->toolBox->useTool($functionCall, $response->getTrackingMeta());
+                $this->addToHistory($toolResult);
+            }
+        }
     }
 
     /**
@@ -73,6 +131,9 @@ class AgentModel
             TXT;
     }
 
+    /**
+     * @return string
+     */
     protected function personality(): string
     {
         $instructions = $this->initialInstruction();
@@ -82,46 +143,6 @@ class AgentModel
         }
 
         return $instructions;
-    }
-
-    /**
-     * @param string $period
-     *
-     * @return string
-     *
-     * @throws ConnectionException
-     * @throws RequestException
-     */
-    public function runModel(string $period = self::PERIOD_DAY): string
-    {
-        $this->addToHistory([
-            'role' => 'user',
-            //            'content' => 'Please analyse pizza orders for period: ' . $period,
-            //            'content' => 'Please get current time in GMT+3.',
-            //            'content' => 'Load current info about pizza resets. Give me count and affinity - cheese to meat',
-            'content' => "Analyze orders for {$period} and give me summary info on them.",
-        ]);
-
-        while (true) {
-            if ($this->turns > self::MAX_AGENT_TURNS_PER_RUN) {
-                throw new TooManyTurnsException('Model took more than ' . self::MAX_AGENT_TURNS_PER_RUN . ' turns and likely got into infinite loop.');
-            }
-            $this->turns++;
-
-            $response = $this->makeRequest();
-            foreach ($response->getOutput() as $outputItem) {
-                $this->addToHistory($outputItem);
-            }
-
-            if (! $response->hasFunctionCalls()) {
-                return $response->getOutputText();
-            }
-
-            foreach ($response->getFunctionCalls() as $functionCall) {
-                $toolResult = $this->toolBox->useTool($functionCall);
-                $this->addToHistory($toolResult);
-            }
-        }
     }
 
     /**
@@ -146,10 +167,11 @@ class AgentModel
                 'instructions' => $this->personality(),
                 'input' => $this->history,
                 'tools' => $this->toolBox->definitions(),
+                'metadata' => $this->metadata->toArray(),
             ])
             ->throw()
             ->json();
 
-        return new ResponseWrapper($response);
+        return new ResponseWrapper((new TokensLoggerWrapper($response, $this->metadata))->getRawResponse());
     }
 }

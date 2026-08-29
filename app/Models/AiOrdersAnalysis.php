@@ -12,17 +12,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property array<array-key, mixed> $new_hot_ids
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
- *
+ * @property string|null $conversation_uuid
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis whereConversationUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis whereNewHotIds($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis wherePresetsRecommendations($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis whereReport($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AiOrdersAnalysis whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class AiOrdersAnalysis extends Model
@@ -36,6 +36,7 @@ class AiOrdersAnalysis extends Model
      * @var string[]
      */
     protected $fillable = [
+        'conversation_uuid',
         'report',
         'presets_recommendations',
         'new_hot_ids',

@@ -2,7 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Ai\OrdersAnalyzer\AgentModel as OrdersAnalyzerAgentModel;
+use App\Services\Ai\Agents\AgentTokensLimitProxy;
+use App\Services\Ai\Agents\OrdersAnalyzer\AgentModel as OrdersAnalyzerAgentModel;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -19,7 +20,8 @@ class ChatCommand extends Command
      */
     public function handle()
     {
-        $agent = new OrdersAnalyzerAgentModel;
-        $this->info($agent->runModel(OrdersAnalyzerAgentModel::PERIOD_WEEK));
+        $agent = new OrdersAnalyzerAgentModel(period: OrdersAnalyzerAgentModel::PERIOD_WEEK);
+        $proxy = new AgentTokensLimitProxy($agent);
+        $this->info($proxy->runModel()->getOutputText());
     }
 }

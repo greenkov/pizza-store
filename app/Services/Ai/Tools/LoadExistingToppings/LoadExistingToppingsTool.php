@@ -3,6 +3,7 @@
 namespace App\Services\Ai\Tools\LoadExistingToppings;
 
 use App\Models\Topping;
+use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Tools\AbstractTool;
 
 final class LoadExistingToppingsTool extends AbstractTool
@@ -37,12 +38,13 @@ final class LoadExistingToppingsTool extends AbstractTool
 
     /**
      * @param array $params
+     * @param TrackingMeta $trackingMeta
      *
      * @return string
      *
      * @throws \JsonException
      */
-    public function use(array $params): string
+    public function use(array $params, TrackingMeta $trackingMeta): string
     {
         $this->logInfo('Tool called...', $params);
 
