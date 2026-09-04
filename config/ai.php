@@ -7,6 +7,6 @@ return [
         'default_model' => env('OPENAI_DEFAULT_MODEL', 'gpt-5.6-luna'),
     ],
     'limits' => [
-        'daily_agent_quota' => env('AGENT_DAILY_TOKEN_QUOTA', 100_000),
+        'daily_agent_quota' => env('AGENT_DAILY_TOKEN_QUOTA', 200_000),
     ],
 ];
