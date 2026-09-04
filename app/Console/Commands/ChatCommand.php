@@ -10,8 +10,8 @@ use Illuminate\Console\Command;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 
-#[Signature('chat')]
-#[Description('Command description')]
+#[Signature('ai:orders-analysis {period=week : Time period to analyze (week, month)}')]
+#[Description('Command to run AI orders analysis agent for specified period. Produces toppings combination recommendations, sets "hot" flag on popular presets')]
 class ChatCommand extends Command
 {
     /**
@@ -20,7 +20,15 @@ class ChatCommand extends Command
      */
     public function handle()
     {
-        $agent = new OrdersAnalyzerAgentModel(period: OrdersAnalyzerAgentModel::PERIOD_WEEK);
+        $period = $this->argument('period');
+        $availablePeriodValues = [OrdersAnalyzerAgentModel::PERIOD_WEEK, OrdersAnalyzerAgentModel::PERIOD_MONTH];
+        if (!in_array($period, $availablePeriodValues)) {
+            $this->error('Invalid period value. Available values: ' . implode(', ', $availablePeriodValues));
+
+            return;
+        }
+
+        $agent = new OrdersAnalyzerAgentModel(period: $period);
         $proxy = new AgentTokensLimitProxy($agent);
         $this->info($proxy->runModel()->getOutputText());
     }

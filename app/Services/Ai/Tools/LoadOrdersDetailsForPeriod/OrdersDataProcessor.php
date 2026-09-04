@@ -12,6 +12,8 @@ class OrdersDataProcessor
 {
     private const PERIOD_WEEK = 'week';
 
+    private const PERIOD_MONTH = 'month';
+
     private const COMBINATIONS_CAP = 25;
 
     /**
@@ -71,9 +73,12 @@ class OrdersDataProcessor
      */
     private function buildPeriodField(): array
     {
-        $from = $this->period === self::PERIOD_WEEK
-            ? Carbon::now()->subWeek()
-            : Carbon::now();
+        $from = Carbon::now();
+        if ($this->period === self::PERIOD_WEEK) {
+            $from = Carbon::now()->subWeek();
+        } elseif ($this->period === self::PERIOD_MONTH) {
+            $from = Carbon::now()->subMonth();
+        }
 
         $to = Carbon::now();
 
@@ -147,11 +152,11 @@ class OrdersDataProcessor
         $this->orderedPizzas->each(function ($orderedPizza) use (&$result) {
             /** @var OrderedPizza $orderedPizza */
             foreach ($orderedPizza->topping_codes as $code) {
-                if (! $this->toppings->has($code)) {
+                if (!$this->toppings->has($code)) {
                     continue;
                 }
 
-                if (! array_key_exists($code, $result)) {
+                if (!array_key_exists($code, $result)) {
                     $result[$code] = $this->toppings->get($code)->except(['id']);
                     $result[$code]['in_ordered_pizzas'] = 1;
                 } else {

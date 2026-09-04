@@ -20,13 +20,13 @@ use Illuminate\Support\Facades\Http;
 
 class AgentModel implements Agent
 {
-    public const PERIOD_DAY = 'day';
-
     public const PERIOD_WEEK = 'week';
+
+    public const PERIOD_MONTH = 'month';
 
     private const AGENT_NAME = 'OrdersAnalyzer';
 
-    private const GUIDELINES_PATH = 'app/Services/Ai/OrdersAnalyzer/INSTRUCTIONS.md';
+    private const GUIDELINES_PATH = 'app/Services/Ai/Agents/OrdersAnalyzer/INSTRUCTIONS.md';
 
     private const MAX_AGENT_TURNS_PER_RUN = 20;
 
@@ -57,7 +57,7 @@ class AgentModel implements Agent
 
     private TrackingMeta $metadata;
 
-    public function __construct(?string $modelName = null, string $period = self::PERIOD_DAY)
+    public function __construct(?string $modelName = null, string $period = self::PERIOD_WEEK)
     {
         $this->modelName = $modelName ?? config('ai.openai.default_model');
         $this->period = $period;
@@ -66,7 +66,10 @@ class AgentModel implements Agent
             new GetCurrentTimeTool,
             new LoadExistingPizzaPresetsTool,
             new LoadExistingToppingsTool,
-            new LoadOrdersDetailsForPeriodTool,
+            new LoadOrdersDetailsForPeriodTool([
+                LoadOrdersDetailsForPeriodTool::PERIOD_WEEK,
+                LoadOrdersDetailsForPeriodTool::PERIOD_MONTH,
+            ]),
             new UpdateHotFlagsTool,
             new AnalysisReportTool,
         ]);

@@ -8,12 +8,17 @@ use App\Services\Ai\Agents\TrackingMeta;
 use App\Services\Ai\Exceptions\InvalidParametersException;
 use App\Services\Ai\Tools\AbstractTool;
 use Carbon\Carbon;
+use InvalidArgumentException;
 
 final class LoadOrdersDetailsForPeriodTool extends AbstractTool
 {
     public const PERIOD_DAY = 'day';
 
     public const PERIOD_WEEK = 'week';
+
+    public const PERIOD_MONTH = 'month';
+
+    public const ALL_PERIODS = [self::PERIOD_DAY, self::PERIOD_WEEK, self::PERIOD_MONTH];
 
     private const string DESCRIPTION = <<<'TXT'
         Aggregated sales for the period. Everything is already counted - read the figures,
@@ -37,6 +42,21 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
     private const string NAME = 'load_orders_details_for_period';
 
     /**
+     * @param string[] $allowedPeriods Periods this instance offers the model, a subset of self::ALL_PERIODS.
+     *
+     * @throws InvalidArgumentException
+     */
+    public function __construct(private array $allowedPeriods = self::ALL_PERIODS)
+    {
+        $unknownPeriods = array_diff($this->allowedPeriods, self::ALL_PERIODS);
+        if ($this->allowedPeriods === [] || $unknownPeriods !== []) {
+            throw new InvalidArgumentException(
+                'Allowed periods must be a non-empty subset of: ' . implode(', ', self::ALL_PERIODS)
+            );
+        }
+    }
+
+    /**
      * @return string[]
      */
     public function definition(): array
@@ -50,9 +70,10 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
                 'properties' => [
                     'period' => [
                         'type' => 'string',
-                        'enum' => [self::PERIOD_DAY, self::PERIOD_WEEK],
-                        'description' => 'Time window: "day" is today, "week" is the last seven days '
-                            . 'including today. Use the period the user asked for.',
+                        'enum' => array_values($this->allowedPeriods),
+                        'description' => 'Time window ending today: "day" is today only, "week" is today plus the '
+                            . '7 days before it, "month" is today plus the calendar month before it. The exact '
+                            . 'dates come back in "period". Use the period the user asked for.',
                     ],
                 ],
                 'required' => ['period'],
@@ -83,11 +104,13 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
     {
         $this->logInfo('Tool called...', $params);
 
-        $period = $params['period'] ?? self::PERIOD_DAY;
-        if (! in_array($period, [self::PERIOD_DAY, self::PERIOD_WEEK])) {
+        $period = $params['period'] ?? null;
+        if (!in_array($period, $this->allowedPeriods, true)) {
             $this->logError('Wrong period specified.', $params);
 
-            throw new InvalidParametersException('Wrong period specified.');
+            throw new InvalidParametersException(
+                'Wrong period specified. Allowed values: ' . implode(', ', $this->allowedPeriods)
+            );
         }
 
         $ordersForPeriodQuery = Order::select(['id', 'status'])->whereNotIn('status', [Order::STATUS_PENDING, Order::STATUS_CANCELED]);
@@ -95,6 +118,9 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
             $ordersForPeriodQuery->whereDate('created_at', today());
         } elseif ($period === self::PERIOD_WEEK) {
             $ordersForPeriodQuery->whereDate('created_at', '>=', Carbon::now()->subWeek())
+                ->whereDate('created_at', '<=', Carbon::now());
+        } elseif ($period === self::PERIOD_MONTH) {
+            $ordersForPeriodQuery->whereDate('created_at', '>=', Carbon::now()->subMonth())
                 ->whereDate('created_at', '<=', Carbon::now());
         }
         $orderIdsForPeriod = $ordersForPeriodQuery->get()->pluck('id')->toArray();

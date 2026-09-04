@@ -13,7 +13,8 @@ final class UpdateHotFlagsTool extends AbstractTool
     private const string DESCRIPTION = <<<'TXT'
         Replaces the featured ("hot") presets with exactly the given ids: those become
         featured, every other preset stops being featured. Always pass the complete final
-        list, never just the additions. Call it exactly once per analysis.
+        list, never just the additions. Call it at most once per analysis, and not at all
+        when the period had no sales - the list can never be empty.
         TXT;
 
     private const string NAME = 'update_hot_flags';

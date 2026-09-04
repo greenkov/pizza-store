@@ -48,7 +48,8 @@ final class AnalysisReportTool extends AbstractTool
                     ],
                     'hot_ids' => [
                         'type' => 'array',
-                        'description' => 'The same preset ids you passed to update_hot_flags.',
+                        'description' => 'The same preset ids you passed to update_hot_flags, or an empty '
+                            . 'array if you did not call it because the period had no sales.',
                         'items' => [
                             'type' => 'integer',
                         ],

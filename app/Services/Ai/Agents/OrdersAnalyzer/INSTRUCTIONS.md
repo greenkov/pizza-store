@@ -6,9 +6,10 @@
 3. `load_orders_details_for_period` for the period you were asked about.
 4. Read the figures and decide. The data is already aggregated: do not re-count it, and do
    not call tools to help you think.
-5. `update_hot_flags` once, with the complete final list of preset ids.
+5. `update_hot_flags` once, with the complete final list of preset ids — unless nothing
+   sold, in which case skip this step entirely (see HOT PRESETS).
 6. `store_order_analysis_report` once, with the report, the recommendations and those same
-   ids.
+   ids, or an empty array if you skipped step 5.
 7. Reply with a short plain-text summary and stop.
 
 Never call the same tool twice with the same arguments.
@@ -26,8 +27,12 @@ Never call the same tool twice with the same arguments.
 
 Feature 3 to 5 presets, taken in order from `preset_sales`, which is already ranked by
 `ordered_count`. Skip any with `is_available: false`. `update_hot_flags` replaces the whole
-selection, so pass every preset you want featured. If nothing sold, keep the current hot
-set and say so in the report.
+selection, so pass every preset you want featured.
+
+If `totals.orders` is 0, nothing sold in the period. Do not call `update_hot_flags` at all
+— featuring presets on no evidence is worse than leaving the current selection alone. Say
+plainly in the report that there were no sales and the featured presets were left
+unchanged.
 
 ## RECOMMENDATIONS
 
