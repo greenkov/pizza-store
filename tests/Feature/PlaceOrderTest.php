@@ -1,10 +1,18 @@
 <?php
 
+use App\Models\Order;
+use App\Models\PizzaPreset;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
+
+    seedToppingCatalog();
+
+    $preset = PizzaPreset::factory()->create();
+    $this->actingAs($this->user)
+        ->post(route('card.store'), ['preset_id' => $preset->id, 'size' => 'md']);
 });
 
 /**
@@ -179,4 +187,16 @@ it('does not leak validation rules to the browser', function () {
                 ->and($methods['visa']['fields'][0])->not->toHaveKey('rules')
                 ->and($methods['google_pay']['fields'])->toBe([]);
         });
+});
+
+it('refuses to create an order when the cart is empty', function () {
+    $this->actingAs($this->user)
+        ->withSession(['cart' => []])
+        ->post(route('order.store'), [
+            'payment_method' => 'visa',
+            'payment_details' => cardDetails(),
+        ])
+        ->assertSessionHasErrors('cart');
+
+    expect(Order::count())->toBe(0);
 });

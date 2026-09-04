@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Topping;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +45,15 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Create a row for every topping in the catalog.
+ *
+ * The catalog itself is a constant on the model, so codes are valid with an empty
+ * database; anything reading md_cal or md_price needs the rows to exist.
+ */
+function seedToppingCatalog(): void
 {
-    // ..
+    foreach (Topping::getAvailableToppingCodes() as $code) {
+        Topping::factory()->code($code)->create();
+    }
 }

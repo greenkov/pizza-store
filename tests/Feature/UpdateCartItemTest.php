@@ -1,13 +1,10 @@
 <?php
 
 use App\Models\PizzaPreset;
-use App\Models\Topping;
 use App\Models\User;
 
 beforeEach(function () {
-    foreach (Topping::getAvailableToppingCodes() as $code) {
-        Topping::factory()->code($code)->create();
-    }
+    seedToppingCatalog();
 
     $this->user = User::factory()->create();
     $this->preset = PizzaPreset::factory()->create(['topping_codes' => ['CHZ_1']]);

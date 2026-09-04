@@ -17,9 +17,12 @@ class ToppingFactory extends Factory
      */
     public function definition(): array
     {
-        return $this->attributesForCode(
-            fake()->randomElement(Topping::getAvailableToppingCodes())
-        );
+        return [
+            'code' => fn () => fake()->unique()->randomElement(Topping::getAvailableToppingCodes()),
+            'name' => fn (array $attributes) => Topping::getNameByCode($attributes['code']),
+            'md_cal' => fn (array $attributes) => config("calories.toppings.{$attributes['code']}.cal"),
+            'md_price' => fn (array $attributes) => config("calories.toppings.{$attributes['code']}.price"),
+        ];
     }
 
     /**

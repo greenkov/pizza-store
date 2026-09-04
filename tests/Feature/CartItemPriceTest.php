@@ -1,8 +1,11 @@
 <?php
 
-use App\Models\Topping;
 use App\Objects\CartPresenter;
 use App\Services\Cart\Objects\CartItemDTO;
+
+beforeEach(function () {
+    seedToppingCatalog();
+});
 
 it('prices a medium pizza as base plus its toppings', function () {
     $item = CartItemDTO::buildFromCustomToppingsList('Custom', 'md', ['MSHR_1', 'CHZ_1']);
@@ -47,10 +50,6 @@ it('ignores an unknown topping code instead of failing', function () {
 });
 
 it('agrees with the price the cart shows', function () {
-    foreach (Topping::getAvailableToppingCodes() as $code) {
-        Topping::factory()->code($code)->create();
-    }
-
     $item = CartItemDTO::buildFromCustomToppingsList('Custom', 'lg', ['MT_1', 'CHZ_2']);
 
     $presented = CartPresenter::present([$item->toArray()]);

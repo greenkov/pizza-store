@@ -48,6 +48,7 @@ class OrderController extends Controller implements HasMiddleware
 
     /**
      * @param StoreOrderRequest $request
+     *
      * @return RedirectResponse
      *
      * @throws CircularDependencyException
@@ -55,7 +56,7 @@ class OrderController extends Controller implements HasMiddleware
      * @throws EntryNotFoundException
      * @throws NotFoundExceptionInterface
      * @throws UnsupportedPaymentMethodException
-     * @throws InvalidOrderException
+     * @throws ValidationException
      */
     public function store(StoreOrderRequest $request): RedirectResponse
     {
@@ -63,7 +64,14 @@ class OrderController extends Controller implements HasMiddleware
 
         $cartService = app(CartService::class);
         $cart = $cartService->readCartFromSession();
-        $order = app(OrderService::class)->createPendingOrder($cart);
+        try {
+            $order = app(OrderService::class)->createPendingOrder($cart);
+        } catch (InvalidOrderException $e) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
+            throw ValidationException::withMessages([
+                'cart' => $e->getMessage(),
+            ]);
+        }
 
         $paymentService = app(PaymentService::class);
         $paymentParams = PaymentMethodParams::buildFromRequestParams($data);

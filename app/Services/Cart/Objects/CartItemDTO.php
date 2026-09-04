@@ -9,12 +9,12 @@ use Arr;
 class CartItemDTO
 {
     /**
-     * @param  string|null  $id
-     * @param  string  $size
-     * @param  string|null  $name
-     * @param  int|null  $presetId
-     * @param  array  $toppingsList
-     * @param  int  $quantity
+     * @param string|null $id
+     * @param string $size
+     * @param string|null $name
+     * @param int|null $presetId
+     * @param array $toppingsList
+     * @param int $quantity
      */
     private function __construct(
         public ?string $id,
@@ -28,8 +28,9 @@ class CartItemDTO
     }
 
     /**
-     * @param  string  $size
-     * @param  int  $presetId
+     * @param string $size
+     * @param int $presetId
+     *
      * @return self
      */
     public static function buildFromPresetId(string $size, int $presetId): self
@@ -40,8 +41,9 @@ class CartItemDTO
     }
 
     /**
-     * @param  string  $size
-     * @param  array  $toppingsList
+     * @param string $size
+     * @param array $toppingsList
+     *
      * @return self
      */
     public static function buildFromCustomToppingsList(string $name, string $size, array $toppingsList): self
@@ -50,7 +52,8 @@ class CartItemDTO
     }
 
     /**
-     * @param  array  $params
+     * @param array $params
+     *
      * @return self
      */
     public static function buildFromRequestParams(array $params): self
@@ -61,7 +64,8 @@ class CartItemDTO
     }
 
     /**
-     * @param  array  $data
+     * @param array $data
+     *
      * @return self
      */
     public static function buildFromArray(array $data): self
@@ -77,7 +81,8 @@ class CartItemDTO
     }
 
     /**
-     * @param  CartItemDTO  $cartItemDTO
+     * @param CartItemDTO $cartItemDTO
+     *
      * @return bool
      */
     public function equalTo(CartItemDTO $cartItemDTO): bool
@@ -106,7 +111,12 @@ class CartItemDTO
 
         $toppings = Topping::whereIn('code', $this->toppingsList)->get()->keyBy('code');
         foreach ($this->toppingsList as $toppingCode) {
-            $result += $toppings[$toppingCode]->md_price;
+            $topping = $toppings->get($toppingCode);
+            if ($topping === null) {
+                continue;
+            }
+
+            $result += $topping->md_price;
         }
 
         return round($result * $sizeCoef, 2);

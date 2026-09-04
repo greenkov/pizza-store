@@ -1,14 +1,11 @@
 <?php
 
 use App\Models\PizzaPreset;
-use App\Models\Topping;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
-    foreach (Topping::getAvailableToppingCodes() as $code) {
-        Topping::factory()->code($code)->create();
-    }
+    seedToppingCatalog();
 });
 
 /**

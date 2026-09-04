@@ -7,7 +7,8 @@ test('it builds a topping from the catalog', function () {
 
     expect(Topping::getAvailableToppingCodes())->toContain($topping->code)
         ->and($topping->name)->toBe(Topping::getNameByCode($topping->code))
-        ->and($topping->md_cal)->toBe(config("calories.toppings.$topping->code"));
+        ->and($topping->md_cal)->toBe(config("calories.toppings.$topping->code.cal"))
+        ->and($topping->md_price)->toBe(config("calories.toppings.$topping->code.price"));
 });
 
 test('it builds the topping requested by code', function () {
@@ -15,7 +16,8 @@ test('it builds the topping requested by code', function () {
 
     expect($topping->code)->toBe('MT_2')
         ->and($topping->name)->toBe('Bacon')
-        ->and($topping->md_cal)->toBe(config('calories.toppings.MT_2'));
+        ->and($topping->md_cal)->toBe(config('calories.toppings.MT_2.cal'))
+        ->and($topping->md_price)->toBe(config("calories.toppings.$topping->code.price"));
 });
 
 test('it creates every catalog topping without colliding on code', function () {

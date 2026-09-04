@@ -18,7 +18,7 @@ class AddToCartRequest extends FormRequest
         $availableSizesString = implode(',', PizzaPreset::$availableSizes);
 
         return [
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['required_without:preset_id', 'string', 'max:255'],
             'size' => ['required', 'string', "in:{$availableSizesString}"],
             'preset_id' => ['sometimes', 'nullable', 'exists:pizza_presets,id'],
             'topping_codes' => [
