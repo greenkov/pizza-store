@@ -22,7 +22,7 @@ class AddToCartRequest extends FormRequest
             'size' => ['required', 'string', "in:{$availableSizesString}"],
             'preset_id' => ['sometimes', 'nullable', 'exists:pizza_presets,id'],
             'topping_codes' => [
-                'required_if:preset_id,null',
+                'required_without:preset_id',
                 'array',
                 new ToppingCodesInPizzaOrder,
             ],

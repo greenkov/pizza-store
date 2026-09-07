@@ -20,6 +20,15 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
 
     public const ALL_PERIODS = [self::PERIOD_DAY, self::PERIOD_WEEK, self::PERIOD_MONTH];
 
+    /**
+     * @var array|string[]
+     */
+    public static array $countableStatuses = [
+        Order::STATUS_PAID,
+        Order::STATUS_DELIVERING,
+        Order::STATUS_COMPLETED,
+    ];
+
     private const string DESCRIPTION = <<<'TXT'
         Aggregated sales for the period. Everything is already counted - read the figures,
         do not re-count. Keys:
@@ -113,7 +122,7 @@ final class LoadOrdersDetailsForPeriodTool extends AbstractTool
             );
         }
 
-        $ordersForPeriodQuery = Order::select(['id', 'status'])->whereNotIn('status', [Order::STATUS_PENDING, Order::STATUS_CANCELED]);
+        $ordersForPeriodQuery = Order::select(['id', 'status'])->whereIn('status', self::$countableStatuses);
         if ($period === self::PERIOD_DAY) {
             $ordersForPeriodQuery->whereDate('created_at', today());
         } elseif ($period === self::PERIOD_WEEK) {

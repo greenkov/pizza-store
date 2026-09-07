@@ -4,12 +4,14 @@ use App\Models\Order;
 use App\Models\OrderedPizza;
 use App\Models\PizzaPreset;
 use App\Models\Topping;
+use App\Services\Delivery\DeliveryMethods\DeliveryDriverFactory;
 
 test('it builds an order that the analyser counts', function () {
-    $order = Order::factory()->create();
+    $order = Order::factory()->create(['status' => Order::STATUS_PAID]);
 
     expect($order->user_id)->not->toBeNull()
         ->and($order->status)->toBe(Order::STATUS_PAID)
+        ->and($order->delivery_key)->toBeIn(DeliveryDriverFactory::AVAILABLE_DRIVERS)
         ->and(Order::$availableStatuses)->toContain($order->status);
 });
 
